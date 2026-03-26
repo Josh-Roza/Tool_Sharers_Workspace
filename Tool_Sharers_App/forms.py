@@ -1,10 +1,10 @@
 from django import forms
-from .models import User
+from .models import Listing, Report, Review, User
 
 class User_Form(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['user_id', 'username', 'password', 'email', 'verified', 'phone_number']
+        fields = ['username', 'password', 'email', 'phone_number']
         widgets = {
             'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
@@ -14,7 +14,7 @@ class User_Form(forms.ModelForm):
 class Listing_Form(forms.ModelForm):
     class Meta:
         model = Listing
-        fields = ['listing__id', 'user', 'title', 'description', 'price', 'location', 'condition', 'category']
+        fields = ['user', 'title', 'description', 'price', 'location', 'condition', 'category']
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Tool'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description'}),
@@ -27,7 +27,7 @@ class Listing_Form(forms.ModelForm):
 class Review_Form(forms.ModelForm):
     class Meta:
         model = Review
-        fields = ['review_id', 'listing', 'buyer_id', 'seller_id', 'rating', 'comment']
+        fields = ['listing', 'buyer', 'seller', 'rating', 'comment']
         widgets = {
             'rating': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Rating'}),
             'comment': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Comment'}),
@@ -36,9 +36,9 @@ class Review_Form(forms.ModelForm):
 class Report_Form(forms.ModelForm):
     class Meta:
         model = Report
-        fields = ['report_id']
+        fields = ['person_reported', 'reporter', 'transaction', 'reason']
         widgets = {
-            'report': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'What was your issue?'}),
+            'reason': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'What was your issue?'}),
         }
 
 #need an image form
