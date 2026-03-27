@@ -1,5 +1,5 @@
 from django import forms
-from .models import Listing, Report, Review, User
+from .models import Listing, Report, Review, User, Image
 
 class User_Form(forms.ModelForm):
     class Meta:
@@ -12,9 +12,11 @@ class User_Form(forms.ModelForm):
         }
 
 class Listing_Form(forms.ModelForm):
+    listing_image = forms.ImageField(required=False, label="Upload Photo")
     class Meta:
         model = Listing
         fields = ['user', 'title', 'description', 'price', 'location', 'condition', 'category']
+        
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Tool'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description'}),
@@ -41,5 +43,8 @@ class Report_Form(forms.ModelForm):
             'reason': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'What was your issue?'}),
         }
 
-#need an image form
+class Image_Form(forms.ModelForm):
+    class Meta:
+        model = Image
+        fields = ['image']
 
