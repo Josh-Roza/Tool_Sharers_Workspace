@@ -6,6 +6,10 @@
     <title>Document Title</title>
 </head>
 <body>
-    <a href="{% url 'add_user' %}">Add User</a>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Create Account</button>
+    </form>
 </body>
 </html>
