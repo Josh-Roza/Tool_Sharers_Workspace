@@ -10,7 +10,7 @@ def homePage(request):
     form = Listing_Form()
     return render(request, 'index.html', {'listings': listings, 'form': form})
 
-def create_user(request):
+def add_user(request):
     success = False
     added_user = None
     if request.method == 'POST':

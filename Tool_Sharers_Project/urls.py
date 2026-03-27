@@ -23,7 +23,7 @@ from Tool_Sharers_App import views
 urlpatterns = [
     path("admin/", admin.site.urls), 
     path("", views.homePage, name="home"),
-    path("add_user/", views.create_user, name="add_user"),
+    path("add_user/", views.add_user, name="add_user"),
     path("create/", views.create_listing, name="create_listing"),
     path("edit/<int:listing_id>/", views.edit_listing, name="edit_listing"),
     path("listing/<int:listing_id>/", views.view_listing, name="view_listing"),

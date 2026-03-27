@@ -9,6 +9,7 @@ class User_Form(forms.ModelForm):
             'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
             'password': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}),
         }
 
 class Listing_Form(forms.ModelForm):
