@@ -6,6 +6,9 @@
     <title>Document Title</title>
 </head>
 <body>
+    {% if success %}
+        <p>Account created{% if added_user %} for {{ added_user.username }}{% endif %}.</p>
+    {% endif %}
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}

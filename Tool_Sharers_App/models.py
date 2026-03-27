@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
-    id = None
+    username = models.CharField(max_length=150, unique=True)
     user_id = models.BigAutoField(primary_key=True, db_column='id')
     reputation = models.IntegerField(default=0)
     verified = models.BooleanField(default=False)
