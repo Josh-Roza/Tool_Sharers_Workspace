@@ -2,7 +2,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 
 class User(AbstractUser):
-    user_id = models.AutoField(primary_key=True)
+    id = None
+    user_id = models.BigAutoField(primary_key=True, db_column='id')
+    reputation = models.IntegerField(default=0)
     verified = models.BooleanField(default=False)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     email = models.EmailField(unique=True)

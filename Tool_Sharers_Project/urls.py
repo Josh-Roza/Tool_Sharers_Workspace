@@ -20,4 +20,5 @@ from Tool_Sharers_App import views
 
 urlpatterns = [
     path("", views.homePage, name="home"),
+    path("add_user/", views.create_user, name="add_user"),
 ]
