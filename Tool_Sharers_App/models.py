@@ -53,7 +53,7 @@ class Image(models.Model):
     image_id = models.AutoField(primary_key=True)
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, null=True, blank=True)
     report = models.ForeignKey(Report, on_delete=models.CASCADE, null=True, blank=True)
-    image_url = models.URLField()
+    image = models.ImageField(upload_to='images/')
 
     def __str__(self):
         if self.listing:

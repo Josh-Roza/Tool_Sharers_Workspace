@@ -1,0 +1,15 @@
+<h1>{{ listing.title }}</h1>
+<p><strong>Price:</strong> ${{ listing.price }}</p>
+<p><strong>Category:</strong> {{ listing.category }}</p>
+<p><strong>Description:</strong> {{ listing.description }}</p>
+
+<h3>Photos:</h3>
+{% for img in images %}
+    <img src="{{ img.image.url }}" alt="Listing photo" style="max-width: 300px;">
+{% empty %}
+    <p>No photos uploaded for this tool.</p>
+{% endfor %}
+
+<hr>
+<a href="{% url 'home' %}">Back to All Listings</a> | 
+<a href="{% url 'edit_listing' listing.listing_id %}">Edit This Listing</a>
