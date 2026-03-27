@@ -1,0 +1,21 @@
+<h3>Available:</h3>
+<ul>
+    {% for listing in listings %}
+        <li>
+            <strong>{{ listing.title }}</strong> - ${{ listing.price }}
+            <br>
+            <a href="{% url 'view_listing' listing.listing_id %}">View Details</a> | 
+            <a href="{% url 'edit_listing' listing.listing_id %}">Edit</a>
+        </li>
+    {% empty %}
+        <li>Nothing for rent yet!</li>
+    {% endfor %}
+</ul>
+
+<hr>
+
+<a href="{% url 'create_listing' %}" style="font-size: 1.2em; font-weight: bold;">
+    + Post a New listing
+</a>
+
+</form>
