@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Tool Sharer</title>
+</head>
+<body>
+    <nav>
+        <a href="{% url 'home' %}"><strong>All Listings</strong></a>
+        
+        {% if user.is_authenticated %}
+            | <a href="{% url 'my_listings' %}">My Listings</a>
+            | <span>Logged in as: {{ user.username }}</span>
+            | <form action="{% url 'logout' %}" method="post" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit">Logout</button>
+            </form>
+        {% else %}
+            | <a href="{% url 'login' %}">Login</a>
+            | <a href="{% url 'add_user' %}">Register</a>
+        {% endif %}
+    </nav>
+
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+</body>
+</html>

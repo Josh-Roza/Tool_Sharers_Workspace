@@ -125,6 +125,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'Tool_Sharers_App.User'
 
+LOGIN_REDIRECT_URL = '/'
+
+LOGIN_URL = 'login'
 #img settings magic idk
 
 MEDIA_URL = '/media/'

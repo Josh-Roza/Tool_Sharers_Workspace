@@ -16,7 +16,7 @@ class Listing_Form(forms.ModelForm):
     listing_image = forms.ImageField(required=False, label="Upload Photo")
     class Meta:
         model = Listing
-        fields = ['user', 'title', 'description', 'price', 'location', 'condition', 'category']
+        fields = ['title', 'description', 'price', 'location', 'condition', 'category']
         
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Tool'}),
