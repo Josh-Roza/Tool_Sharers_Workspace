@@ -1,6 +1,7 @@
 from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
+from django.contrib.auth.decorators import login_required
 from .models import User, Listing, Review, Report, Image, Transaction
 from .forms import User_Form, Listing_Form, Image_Form, Review_Form, Report_Form
 
@@ -11,41 +12,27 @@ def homePage(request):
     return render(request, 'index.html', {'listings': listings, 'form': form})
 
 def add_user(request):
-    success = False
-    added_user = None
     if request.method == 'POST':
         form = User_Form(request.POST)
         if form.is_valid():
-            added_user = form.save()
-            success = True
-            return render(
-                request,
-                "add_user.html",
-                {"form": form,
-                 "success": success,
-                 "added_user": added_user},
-                )
+            user = form.save(commit=False)
+            user.set_password(form.cleaned_data['password'])
+            user.save()
+            return redirect('login')
     else:
         form = User_Form()
-    return render(
-        request,
-        "add_user.html",
-        {"form": form,
-         "success": success,
-         "added_user": added_user},
-    )
+    return render(request, "add_user.html", {"form": form})
 
-
+@login_required
 def create_listing(request):
     #create new post for item
     if request.method == "POST":
         form = Listing_Form(request.POST, request.FILES)
-        
         if form.is_valid():
             #create listing object but don't save to db yet
+        
             listing = form.save(commit=False)
-            #for demo assign to just the first user in db
-            listing.user = User.objects.first()
+            listing.user = request.user
             listing.save()
             
             if request.FILES.get('listing_image'):
@@ -58,15 +45,16 @@ def create_listing(request):
     else:
         form = Listing_Form()
     return render(request, 'create_listing.html', {'form': Listing_Form()})
-    pass
 
+@login_required
 def edit_listing(request, listing_id):
-    listing = get_object_or_404(Listing, pk=listing_id)
+    listing = get_object_or_404(Listing, listing_id=listing_id, user=request.user)
+
     if request.method == "POST":
         form = Listing_Form(request.POST, instance=listing)
         if form.is_valid():
             form.save()
-            return redirect('home')
+            return redirect('my_listings')
     else:
         form = Listing_Form(instance=listing)
     return render(request, 'create_listing.html', {'form': form, 'edit_mode': True})
@@ -80,23 +68,41 @@ def view_listing(request, listing_id):
         'listing': listing,
         'images': images
     })
-    
 
+@login_required
+def delete_listing(request, listing_id):
+    listing = get_object_or_404(Listing, listing_id=listing_id, user=request.user)
+
+    if request.method == "POST":
+        listing.delete()
+        return redirect('my_listings')
+    
+    return render(request, 'delete_confirm.html', {'listing': listing});
+
+@login_required
+def my_listings(request):
+    user_listings = Listing.objects.filter(user=request.user).order_by('-listing_id')
+    return render(request, 'my_listings.html', {'listings': user_listings})
+
+@login_required
 def create_review(request):
     pass
 
+@login_required
 def create_report(request):
     pass
 
+
+@login_required
 def delete_user(request):
     pass
 
-def delete_listing(request):
-    pass
 
+@login_required
 def delete_review(request):
     pass
 
+@login_required
 def delete_report(request):
     pass
 
