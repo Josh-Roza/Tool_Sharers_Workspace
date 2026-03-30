@@ -1,10 +1,7 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document Title</title>
-</head>
+{% extends 'template.html' %}
+
+{% block content %}
+
 <body>
     {% if success %}
         <p>Account created{% if added_user %} for {{ added_user.username }}{% endif %}.</p>
@@ -14,5 +11,4 @@
         {{ form.as_p }}
         <button type="submit">Create Account</button>
     </form>
-</body>
-</html>
+{% endblock %}
