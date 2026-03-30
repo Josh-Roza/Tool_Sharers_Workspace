@@ -1,6 +1,6 @@
-{% extends 'template.html' %}
+    {% extends 'template.html' %}
 
-{% block content %}
+    {% block content %}
     <h2>Login</h2>
     <form method="post">
         {% csrf_token %}
@@ -10,4 +10,5 @@
     
     <hr>
     <p>Don't have an account? <a href="{% url 'add_user' %}">Create one here</a>.</p>
-{% endblock %}
+
+    {% endblock %}
