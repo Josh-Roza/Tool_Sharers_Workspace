@@ -1,14 +1,22 @@
 {% extends 'template.html' %}
 
 {% block content %}
-
-<body>
     {% if success %}
         <p>Account created{% if added_user %} for {{ added_user.username }}{% endif %}.</p>
     {% endif %}
+
+    <h2>Create Account</h2>
+
+    <p>
+        By creating an account, you acknowledge that the platform is not responsible
+        for damages, loss, or misuse of tools.
+    </p>
+
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Create Account</button>
     </form>
+
+    <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
 {% endblock %}
