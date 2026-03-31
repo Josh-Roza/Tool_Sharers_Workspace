@@ -17,6 +17,15 @@ class User_Form(forms.ModelForm):
             'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}),
         }
 
+class Edit_Profile_Form(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['email', 'phone_number']
+        widgets = {
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}),
+        }
+
 class Listing_Form(forms.ModelForm):
     listing_image = forms.ImageField(required=False, label="Upload Photo")
     class Meta:
