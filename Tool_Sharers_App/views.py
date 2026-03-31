@@ -87,7 +87,27 @@ def my_listings(request):
 
 @login_required
 def create_review(request):
-    pass
+    seller_id = request.GET.get('seller_id')
+    seller = get_object_or_404(User, user_id=seller_id) if seller_id else None
+
+    if request.method == "POST":
+        form = Review_Form(request.POST)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.buyer = request.user
+            review.seller = seller  # set seller from URL parameter
+
+            # Prevent reviewing yourself
+            if review.seller == request.user:
+                form.add_error(None, "You cannot review yourself.")
+                return render(request, "create_review.html", {"form": form})
+
+            review.save()
+            return redirect('view_profile', user_id=review.seller.user_id)
+    else:
+        form = Review_Form()
+
+    return render(request, "create_review.html", {"form": form})
 
 @login_required
 def create_report(request, user_id):
@@ -123,8 +143,19 @@ def delete_user(request):
 
 
 @login_required
-def delete_review(request):
-    pass
+def delete_review(request, review_id):
+    # Get the review, or 404 if it doesn't exist
+    review = get_object_or_404(Review, review_id=review_id)
+
+    # Only allow the buyer who wrote the review to delete it
+    if review.buyer != request.user:
+        return redirect('view_profile', user_id=review.seller.user_id)
+
+    # Delete the review
+    review.delete()
+
+    # Redirect back to the seller's profile
+    return redirect('view_profile', user_id=review.seller.user_id)
 
 #Unnecessary, leave as pass, will be handled in admin
 @login_required

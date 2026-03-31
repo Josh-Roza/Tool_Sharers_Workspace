@@ -1,4 +1,5 @@
 from django import forms
+from django.core.validators import MinValueValidator, MaxValueValidator
 from .models import Listing, Report, Review, User, Image
 
 class User_Form(forms.ModelForm):
@@ -45,11 +46,20 @@ class Listing_Form(forms.ModelForm):
         }
 
 class Review_Form(forms.ModelForm):
+    rating = forms.IntegerField(
+        validators=[MinValueValidator(0), MaxValueValidator(5)],
+        widget=forms.NumberInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Rating (0-5)',
+            'min': 0,
+            'max': 5
+        })
+    )
+
     class Meta:
         model = Review
-        fields = ['listing', 'buyer', 'seller', 'rating', 'comment']
+        fields = ['listing', 'rating', 'comment']
         widgets = {
-            'rating': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Rating'}),
             'comment': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Comment'}),
         }
 
