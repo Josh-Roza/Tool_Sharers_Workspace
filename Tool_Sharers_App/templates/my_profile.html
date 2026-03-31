@@ -1,0 +1,33 @@
+{% extends 'template.html' %}
+
+{% block content %}
+    <h2>My Profile</h2>
+
+    <p><strong>Username:</strong> {{ profile_user.username }}</p>
+    <p><strong>Email:</strong> {{ profile_user.email }}</p>
+    <p><strong>Phone Number:</strong> {{ profile_user.phone_number }}</p>
+    <p><strong>Reputation:</strong> {{ profile_user.reputation }}</p>
+    <p><strong>Verified:</strong>
+        {% if profile_user.verified %}
+            Yes
+        {% else %}
+            No
+        {% endif %}
+    </p>
+
+    <p><a href="{% url 'edit_profile' %}">Edit Profile</a></p>
+
+    <h3>Reviews</h3>
+    {% if reviews %}
+        {% for review in reviews %}
+            <div>
+                <p><strong>Rating:</strong> {{ review.rating }}/5</p>
+                <p><strong>Comment:</strong> {{ review.comment }}</p>
+                <p><strong>Buyer:</strong> {{ review.buyer.username }}</p>
+                <hr>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No reviews yet.</p>
+    {% endif %}
+{% endblock %}
