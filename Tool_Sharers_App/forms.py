@@ -53,9 +53,12 @@ class Review_Form(forms.ModelForm):
 class Report_Form(forms.ModelForm):
     class Meta:
         model = Report
-        fields = ['person_reported', 'reporter', 'transaction', 'reason']
+        fields = ['reason']
         widgets = {
-            'reason': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'What was your issue?'}),
+            'reason': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Explain why you are reporting this user'
+            }),
         }
 
 class Image_Form(forms.ModelForm):
