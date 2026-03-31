@@ -1,0 +1,48 @@
+{% extends 'template.html' %}
+
+{% block content %}
+<h2>Write a Review</h2>
+
+<!-- Show any non-field errors -->
+{% if form.non_field_errors %}
+    <div class="text-danger">
+        {% for error in form.non_field_errors %}
+            <p>{{ error }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+
+<form method="POST">
+    {% csrf_token %}
+
+    <!-- Listing field -->
+    <div class="form-group">
+        {{ form.listing.label_tag }}
+        {{ form.listing }}
+        {% for error in form.listing.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <!-- Rating field -->
+    <div class="form-group">
+        {{ form.rating.label_tag }}
+        <small class="form-text text-muted">Please give a rating out of 5</small>
+        {{ form.rating }}
+        {% for error in form.rating.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <!-- Comment field -->
+    <div class="form-group">
+        {{ form.comment.label_tag }}
+        {{ form.comment }}
+        {% for error in form.comment.errors %}
+            <div class="text-danger">{{ error }}</div>
+        {% endfor %}
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit Review</button>
+</form>
+{% endblock content %}

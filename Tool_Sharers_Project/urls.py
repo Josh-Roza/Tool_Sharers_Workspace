@@ -35,6 +35,9 @@ urlpatterns = [
     path("my-listings/", views.my_listings, name="my_listings"),
     path("delete/<int:listing_id>/", views.delete_listing, name='delete_listing'),
 
+    path('reviews/create/', views.create_review, name='create_review'),
+    path('reviews/delete/<int:review_id>/', views.delete_review, name='delete_review'),
+
     path("my-profile/", views.my_profile, name="my_profile"),
     path("edit-profile/", views.edit_profile, name="edit_profile"),
     path("profile/<int:user_id>/", views.view_profile, name="view_profile"),
