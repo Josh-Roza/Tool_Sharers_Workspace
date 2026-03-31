@@ -17,11 +17,14 @@ class Listing_Form(forms.ModelForm):
     class Meta:
         model = Listing
         fields = ['title', 'description', 'price', 'location', 'condition', 'category']
+        labels = {
+            'price': 'Price per day',
+        }
         
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Tool'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description'}),
-            'price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Price'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Price per day'}),
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Address'}),
             'condition': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Condition'}),
             'category': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Category'}),
