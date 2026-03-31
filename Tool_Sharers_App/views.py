@@ -115,13 +115,18 @@ def create_report(request, user_id):
 
 @login_required
 def delete_user(request):
-    pass
+    if request.method == "POST":
+        request.user.delete()
+        return redirect('home')
+
+    return render(request, 'delete_user_confirm.html')
 
 
 @login_required
 def delete_review(request):
     pass
 
+#Unnecessary, leave as pass, will be handled in admin
 @login_required
 def delete_report(request):
     pass

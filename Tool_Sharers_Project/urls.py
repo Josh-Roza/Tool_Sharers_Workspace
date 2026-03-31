@@ -39,4 +39,5 @@ urlpatterns = [
     path("edit-profile/", views.edit_profile, name="edit_profile"),
     path("profile/<int:user_id>/", views.view_profile, name="view_profile"),
     path("report/<int:user_id>/", views.create_report, name="create_report"),
+    path("delete-user/", views.delete_user, name="delete_user"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
