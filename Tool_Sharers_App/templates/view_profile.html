@@ -1,0 +1,32 @@
+{% extends 'template.html' %}
+
+{% block content %}
+    <h2>{{ profile_user.username }}'s Profile</h2>
+
+    <p><strong>Username:</strong> {{ profile_user.username }}</p>
+    <p><strong>Reputation:</strong> {{ profile_user.reputation }}</p>
+    <p><strong>Verified:</strong>
+        {% if profile_user.verified %}
+            Yes
+        {% else %}
+            No
+        {% endif %}
+    </p>
+    {% if user.is_authenticated and user != profile_user %}
+        <p><a href="{% url 'create_report' profile_user.user_id %}">Report User</a></p>
+    {% endif %}
+
+    <h3>Reviews</h3>
+    {% if reviews %}
+        {% for review in reviews %}
+            <div>
+                <p><strong>Rating:</strong> {{ review.rating }}/5</p>
+                <p><strong>Comment:</strong> {{ review.comment }}</p>
+                <p><strong>Buyer:</strong> {{ review.buyer.username }}</p>
+                <hr>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No reviews yet.</p>
+    {% endif %}
+{% endblock %}

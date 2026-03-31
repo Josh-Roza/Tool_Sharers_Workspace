@@ -2,6 +2,11 @@ from django import forms
 from .models import Listing, Report, Review, User, Image
 
 class User_Form(forms.ModelForm):
+    accept_waiver = forms.BooleanField(
+        required=True,
+        label="I agree to the liability waiver"
+    )
+
     class Meta:
         model = User
         fields = ['username', 'password', 'email', 'phone_number']
@@ -9,6 +14,15 @@ class User_Form(forms.ModelForm):
             'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}),
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
             'password': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}),
+        }
+
+class Edit_Profile_Form(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['email', 'phone_number']
+        widgets = {
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
             'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}),
         }
 
@@ -42,9 +56,12 @@ class Review_Form(forms.ModelForm):
 class Report_Form(forms.ModelForm):
     class Meta:
         model = Report
-        fields = ['person_reported', 'reporter', 'transaction', 'reason']
+        fields = ['reason']
         widgets = {
-            'reason': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'What was your issue?'}),
+            'reason': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Explain why you are reporting this user'
+            }),
         }
 
 class Image_Form(forms.ModelForm):
