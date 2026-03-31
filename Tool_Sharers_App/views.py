@@ -3,7 +3,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from .models import User, Listing, Review, Report, Image, Transaction
-from .forms import User_Form, Listing_Form, Image_Form, Review_Form, Report_Form
+from .forms import User_Form, Listing_Form, Image_Form, Review_Form, Report_Form, Edit_Profile_Form
+from django.contrib.auth import get_user_model
 
 def homePage(request):
     #get all tools and then display
@@ -89,8 +90,27 @@ def create_review(request):
     pass
 
 @login_required
-def create_report(request):
-    pass
+def create_report(request, user_id):
+    reported_user = get_object_or_404(User, pk=user_id)
+
+    if reported_user == request.user:
+        return redirect('view_profile', user_id=reported_user.user_id)
+
+    if request.method == 'POST':
+        form = Report_Form(request.POST)
+        if form.is_valid():
+            report = form.save(commit=False)
+            report.reporter = request.user
+            report.person_reported = reported_user
+            report.save()
+            return redirect('view_profile', user_id=reported_user.user_id)
+    else:
+        form = Report_Form()
+
+    return render(request, 'create_report.html', {
+        'form': form,
+        'reported_user': reported_user
+    })
 
 
 @login_required
@@ -121,3 +141,35 @@ def add_image(request, listing_id):
     
     return render(request, 'add_image.html', {'form': form, 'listing': listing})
 
+@login_required
+def my_profile(request):
+    reviews = Review.objects.filter(seller=request.user)
+
+    return render(request, 'my_profile.html', {
+        'profile_user': request.user,
+        'reviews': reviews
+    })
+
+
+@login_required
+def edit_profile(request):
+    if request.method == 'POST':
+        form = Edit_Profile_Form(request.POST, instance=request.user)
+        if form.is_valid():
+            form.save()
+            return redirect('my_profile')
+    else:
+        form = Edit_Profile_Form(instance=request.user)
+
+    return render(request, 'edit_profile.html', {'form': form})
+
+
+def view_profile(request, user_id):
+    UserModel = get_user_model()
+    profile_user = get_object_or_404(UserModel, pk=user_id)
+    reviews = Review.objects.filter(seller=profile_user)
+
+    return render(request, 'view_profile.html', {
+        'profile_user': profile_user,
+        'reviews': reviews
+    })

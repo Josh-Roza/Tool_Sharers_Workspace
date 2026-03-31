@@ -34,4 +34,9 @@ urlpatterns = [
     path("listing/<int:listing_id>/", views.view_listing, name="view_listing"),
     path("my-listings/", views.my_listings, name="my_listings"),
     path("delete/<int:listing_id>/", views.delete_listing, name='delete_listing'),
+
+    path("my-profile/", views.my_profile, name="my_profile"),
+    path("edit-profile/", views.edit_profile, name="edit_profile"),
+    path("profile/<int:user_id>/", views.view_profile, name="view_profile"),
+    path("report/<int:user_id>/", views.create_report, name="create_report"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

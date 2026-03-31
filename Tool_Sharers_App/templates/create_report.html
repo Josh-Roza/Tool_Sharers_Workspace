@@ -1,0 +1,13 @@
+{% extends 'template.html' %}
+
+{% block content %}
+    <h2>Report {{ reported_user.username }}</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Submit Report</button>
+    </form>
+
+    <p><a href="{% url 'view_profile' reported_user.user_id %}">Cancel</a></p>
+{% endblock %}

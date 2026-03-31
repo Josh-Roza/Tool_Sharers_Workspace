@@ -5,15 +5,24 @@
 <ul>
     {% for listing in listings %}
         <li>
-            <strong><a href="{% url 'view_listing' listing.listing_id %}">{{ listing.title }} - ${{ listing.price }} </strong></a>
+            <strong>
+                <a href="{% url 'view_listing' listing.listing_id %}">
+                    {{ listing.title }} - ${{ listing.price }}
+                </a>
+            </strong>
+            <br>
+            Posted by:
+            <a href="{% url 'view_profile' listing.user.user_id %}">
+                {{ listing.user.username }}
+            </a>
         </li>
     {% empty %}
         <li>Nothing for rent yet!</li>
     {% endfor %}
 </ul>
 
-<a href="{% url 'create_listing' %}" style="font-size: 1.2em; font-weight: bold;">+ Post a New listing </a>
+<a href="{% url 'create_listing' %}" style="font-size: 1.2em; font-weight: bold;">
+    + Post a New listing
+</a>
 
-{%endblock %}
-<hr>
-</form>
+{% endblock %}
