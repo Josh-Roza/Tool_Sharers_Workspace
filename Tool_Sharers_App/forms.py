@@ -2,6 +2,11 @@ from django import forms
 from .models import Listing, Report, Review, User, Image
 
 class User_Form(forms.ModelForm):
+    accept_waiver = forms.BooleanField(
+        required=True,
+        label="I agree to the liability waiver"
+    )
+
     class Meta:
         model = User
         fields = ['username', 'password', 'email', 'phone_number']
