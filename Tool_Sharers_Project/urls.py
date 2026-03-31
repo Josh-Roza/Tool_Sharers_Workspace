@@ -38,4 +38,5 @@ urlpatterns = [
     path("my-profile/", views.my_profile, name="my_profile"),
     path("edit-profile/", views.edit_profile, name="edit_profile"),
     path("profile/<int:user_id>/", views.view_profile, name="view_profile"),
+    path("report/<int:user_id>/", views.create_report, name="create_report"),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

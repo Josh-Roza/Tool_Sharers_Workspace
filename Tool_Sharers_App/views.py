@@ -90,8 +90,27 @@ def create_review(request):
     pass
 
 @login_required
-def create_report(request):
-    pass
+def create_report(request, user_id):
+    reported_user = get_object_or_404(User, pk=user_id)
+
+    if reported_user == request.user:
+        return redirect('view_profile', user_id=reported_user.user_id)
+
+    if request.method == 'POST':
+        form = Report_Form(request.POST)
+        if form.is_valid():
+            report = form.save(commit=False)
+            report.reporter = request.user
+            report.person_reported = reported_user
+            report.save()
+            return redirect('view_profile', user_id=reported_user.user_id)
+    else:
+        form = Report_Form()
+
+    return render(request, 'create_report.html', {
+        'form': form,
+        'reported_user': reported_user
+    })
 
 
 @login_required
