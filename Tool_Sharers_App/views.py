@@ -95,19 +95,18 @@ def create_review(request):
         if form.is_valid():
             review = form.save(commit=False)
             review.buyer = request.user
-            review.seller = seller  # set seller from URL parameter
+            review.seller = seller
 
-            # Prevent reviewing yourself
             if review.seller == request.user:
                 form.add_error(None, "You cannot review yourself.")
-                return render(request, "create_review.html", {"form": form})
+                return render(request, "create_review.html", {"form": form, "seller": seller})
 
             review.save()
             return redirect('view_profile', user_id=review.seller.user_id)
     else:
         form = Review_Form()
 
-    return render(request, "create_review.html", {"form": form})
+    return render(request, "create_review.html", {"form": form, "seller": seller})
 
 @login_required
 def create_report(request, user_id):
@@ -132,7 +131,6 @@ def create_report(request, user_id):
         'reported_user': reported_user
     })
 
-
 @login_required
 def delete_user(request):
     if request.method == "POST":
@@ -140,7 +138,6 @@ def delete_user(request):
         return redirect('home')
 
     return render(request, 'delete_user_confirm.html')
-
 
 @login_required
 def delete_review(request, review_id):
@@ -186,7 +183,6 @@ def my_profile(request):
         'reviews': reviews
     })
 
-
 @login_required
 def edit_profile(request):
     if request.method == 'POST':
@@ -198,7 +194,6 @@ def edit_profile(request):
         form = Edit_Profile_Form(instance=request.user)
 
     return render(request, 'edit_profile.html', {'form': form})
-
 
 def view_profile(request, user_id):
     UserModel = get_user_model()

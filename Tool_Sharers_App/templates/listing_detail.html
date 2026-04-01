@@ -1,23 +1,37 @@
-<h1>{{ listing.title }}</h1>
+{% extends 'template.html' %}
 
-<p>
-    <strong>Posted by:</strong>
-    <a href="{% url 'view_profile' listing.user.user_id %}">
-        {{ listing.user.username }}
-    </a>
-</p>
+{% block content %}
+<div class="card">
+    <h1>{{ listing.title }}</h1>
 
-<p><strong>Price:</strong> ${{ listing.price }}</p>
-<p><strong>Category:</strong> {{ listing.category }}</p>
-<p><strong>Description:</strong> {{ listing.description }}</p>
+    <p>
+        <strong>Posted by:</strong>
+        <a href="{% url 'view_profile' listing.user.user_id %}">
+            {{ listing.user.username }}
+        </a>
+    </p>
 
-<h3>Photos:</h3>
-{% for img in images %}
-    <img src="{{ img.image.url }}" alt="Listing photo" style="max-width: 300px;">
-{% empty %}
-    <p>No photos uploaded for this tool.</p>
-{% endfor %}
+    <p><strong>Price:</strong> ${{ listing.price }}</p>
+    <p><strong>Category:</strong> {{ listing.category }}</p>
+    <p><strong>Description:</strong> {{ listing.description }}</p>
+</div>
 
-<hr>
-<a href="{% url 'home' %}">Back to All Listings</a> | 
-<a href="{% url 'edit_listing' listing.listing_id %}">Edit This Listing</a>
+<div class="card">
+    <h3>Photos</h3>
+
+    {% for img in images %}
+        <img src="{{ img.image.url }}" alt="Listing photo" style="max-width: 300px; margin-right: 10px; margin-bottom: 10px;">
+    {% empty %}
+        <p>No photos uploaded for this tool.</p>
+    {% endfor %}
+</div>
+
+<div class="card">
+    <a href="{% url 'home' %}">Back to All Listings</a>
+
+    {% if user.is_authenticated and user == listing.user %}
+        |
+        <a href="{% url 'edit_listing' listing.listing_id %}">Edit This Listing</a>
+    {% endif %}
+</div>
+{% endblock %}

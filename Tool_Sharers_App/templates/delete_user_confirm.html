@@ -1,13 +1,17 @@
 {% extends 'template.html' %}
 
 {% block content %}
+<div class="card">
     <h2>Delete Account</h2>
     <p>Are you sure you want to delete your account? This cannot be undone.</p>
 
     <form method="post">
         {% csrf_token %}
-        <button type="submit">Yes, Delete My Account</button>
+        <button type="submit" class="button-danger">Yes, Delete My Account</button>
     </form>
 
+    <hr>
+
     <p><a href="{% url 'my_profile' %}">Cancel</a></p>
+</div>
 {% endblock %}

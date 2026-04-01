@@ -1,5 +1,21 @@
-<form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Upload Photo</button>
-</form>
+{% extends 'template.html' %}
+
+{% block content %}
+<div class="card">
+    <h2>Upload Photo</h2>
+
+    {% if listing %}
+        <p>Adding image for: <strong>{{ listing.title }}</strong></p>
+    {% endif %}
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Upload Photo</button>
+    </form>
+
+    <hr>
+
+    <p><a href="{% url 'home' %}">Back to Listings</a></p>
+</div>
+{% endblock %}

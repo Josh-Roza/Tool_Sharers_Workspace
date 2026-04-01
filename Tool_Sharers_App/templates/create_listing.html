@@ -1,23 +1,20 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>New Listing</title>
-</head>
-<body>
+{% extends 'template.html' %}
+
+{% block content %}
+<div class="card">
+    <h2>{% if edit_mode %}Edit Listing{% else %}Create New Listing{% endif %}</h2>
 
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        
         {{ form.as_p }}
 
         <button type="submit">
-            {% if edit_mode %}Save Changes{% else %}Post{% endif %}
+            {% if edit_mode %}Save Changes{% else %}Post Listing{% endif %}
         </button>
     </form>
 
     <hr>
-    <p><a href="{% url 'home' %}">← Cancel and return to listings</a></p>
 
-</body>
-</html>
+    <p><a href="{% url 'home' %}">Cancel and return to listings</a></p>
+</div>
+{% endblock %}
