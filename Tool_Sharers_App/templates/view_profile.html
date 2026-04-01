@@ -32,6 +32,17 @@
                 <p><strong>Rating:</strong> {{ review.rating }}/5</p>
                 <p><strong>Comment:</strong> {{ review.comment }}</p>
                 <p><strong>Buyer:</strong> {{ review.buyer.username }}</p>
+
+                {% if user.is_authenticated and review.buyer == user %}
+                    <p>
+                        <a class="button" href="{% url 'edit_review' review.review_id %}">Edit</a>
+                    </p>
+
+                    <form action="{% url 'delete_review' review.review_id %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="button-danger">Delete</button>
+                    </form>
+                {% endif %}
                 <hr>
             </div>
         {% endfor %}

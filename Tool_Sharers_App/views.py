@@ -149,10 +149,33 @@ def delete_review(request, review_id):
         return redirect('view_profile', user_id=review.seller.user_id)
 
     # Delete the review
-    review.delete()
+    if request.method == "POST":
+        seller_id = review.seller.user_id
+        review.delete()
+        return redirect('view_profile', user_id=seller_id)
 
     # Redirect back to the seller's profile
     return redirect('view_profile', user_id=review.seller.user_id)
+
+@login_required
+def edit_review(request, review_id):
+    review = get_object_or_404(Review, review_id=review_id, buyer=request.user)
+
+    if request.method == "POST":
+        form = Review_Form(request.POST, instance=review)
+        if form.is_valid():
+            updated_review = form.save(commit=False)
+            updated_review.buyer = request.user
+            updated_review.seller = review.seller
+            updated_review.save()
+            return redirect('view_profile', user_id=review.seller.user_id)
+    else:
+        form = Review_Form(instance=review)
+
+    return render(request, 'edit_review.html', {
+        'form': form,
+        'review': review
+    })
 
 #Unnecessary, leave as pass, will be handled in admin
 @login_required
