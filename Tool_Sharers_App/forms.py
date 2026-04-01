@@ -78,4 +78,3 @@ class Image_Form(forms.ModelForm):
     class Meta:
         model = Image
         fields = ['image']
-

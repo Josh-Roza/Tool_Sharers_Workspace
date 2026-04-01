@@ -1,13 +1,15 @@
 {% extends 'template.html' %}
 
 {% block content %}
+<div class="card">
     <h2>My Profile</h2>
 
     <p><strong>Username:</strong> {{ profile_user.username }}</p>
     <p><strong>Email:</strong> {{ profile_user.email }}</p>
     <p><strong>Phone Number:</strong> {{ profile_user.phone_number }}</p>
     <p><strong>Reputation:</strong> {{ profile_user.reputation }}</p>
-    <p><strong>Verified:</strong>
+    <p>
+        <strong>Verified:</strong>
         {% if profile_user.verified %}
             Yes
         {% else %}
@@ -15,9 +17,14 @@
         {% endif %}
     </p>
 
-    <p><a href="{% url 'edit_profile' %}">Edit Profile</a></p>
+    <p>
+        <a class="button" href="{% url 'edit_profile' %}">Edit Profile</a>
+    </p>
+</div>
 
+<div class="card">
     <h3>Reviews</h3>
+
     {% if reviews %}
         {% for review in reviews %}
             <div>
@@ -30,7 +37,9 @@
     {% else %}
         <p>No reviews yet.</p>
     {% endif %}
+</div>
 
-    <p><a href="{% url 'delete_user' %}">Delete My Account</a></p>
-    
+<div class="card">
+    <a class="button button-danger" href="{% url 'delete_user' %}">Delete My Account</a>
+</div>
 {% endblock %}

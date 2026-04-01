@@ -1,22 +1,34 @@
 {% extends 'template.html' %}
 
 {% block content %}
-<h2>My listings</h2>
-<ul>
-    {% for listing in listings %}
-    <p>
-        {{ listing.title }}
-    <form action="{% url 'edit_listing' listing.listing_id %}" method="post" style="display:inline;">
-        {% csrf_token %}
-        <button type="submit">Edit</button>
-    </form>
-    <form action="{% url 'delete_listing' listing.listing_id %}" method="post" style="display:inline;">
-        {% csrf_token %}
-        <button type="submit" onclick="return confirm('Really delete?')">Delete</button>
-    </form>
-    </p>
-    {% empty %}
-    <li>You haven't posted anything yet.</li>
-    {% endfor %}
-</ul>
+<div class="card">
+    <h2>My Listings</h2>
+
+    {% if listings %}
+        <ul>
+            {% for listing in listings %}
+                <li class="listing-item">
+                    <strong>
+                        <a href="{% url 'view_listing' listing.listing_id %}">
+                            {{ listing.title }}
+                        </a>
+                    </strong>
+
+                    <div style="margin-top: 8px;">
+                        <a class="button" href="{% url 'edit_listing' listing.listing_id %}">Edit</a>
+
+                        <form action="{% url 'delete_listing' listing.listing_id %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="button-danger" onclick="return confirm('Really delete?')">
+                                Delete
+                            </button>
+                        </form>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>You haven't posted anything yet.</p>
+    {% endif %}
+</div>
 {% endblock %}

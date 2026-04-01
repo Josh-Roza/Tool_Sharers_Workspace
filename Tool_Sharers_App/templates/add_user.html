@@ -1,13 +1,15 @@
 {% extends 'template.html' %}
 
 {% block content %}
+<div class="card">
     {% if success %}
         <p>Account created{% if added_user %} for {{ added_user.username }}{% endif %}.</p>
+        <hr>
     {% endif %}
 
     <h2>Create Account</h2>
 
-    <p>
+    <p class="muted">
         By creating an account, you acknowledge that the platform is not responsible
         for damages, loss, or misuse of tools.
     </p>
@@ -18,5 +20,8 @@
         <button type="submit">Create Account</button>
     </form>
 
+    <hr>
+
     <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
+</div>
 {% endblock %}

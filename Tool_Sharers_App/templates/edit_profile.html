@@ -1,6 +1,7 @@
 {% extends 'template.html' %}
 
 {% block content %}
+<div class="card">
     <h2>Edit Profile</h2>
 
     <form method="post">
@@ -9,5 +10,8 @@
         <button type="submit">Save Changes</button>
     </form>
 
+    <hr>
+
     <p><a href="{% url 'my_profile' %}">Back to My Profile</a></p>
+</div>
 {% endblock %}

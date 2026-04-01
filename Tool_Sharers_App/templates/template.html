@@ -2,21 +2,115 @@
 <html>
 <head>
     <title>Tool Sharer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f8;
+            margin: 0;
+            padding: 0;
+            color: #222;
+        }
+
+        nav {
+            background-color: #1f2937;
+            color: white;
+            padding: 15px 25px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin-right: 15px;
+            font-weight: bold;
+        }
+
+        nav form {
+            display: inline;
+            margin-left: 10px;
+        }
+
+        nav button {
+            background-color: #dc2626;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        main {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+
+        .button,
+        button {
+            background-color: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 16px;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .button-danger {
+            background-color: #dc2626;
+        }
+
+        .button-secondary {
+            background-color: #6b7280;
+        }
+
+        a {
+            color: #2563eb;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        .listing-item {
+            margin-bottom: 15px;
+        }
+
+        .muted {
+            color: #666;
+        }
+
+        hr {
+            border: none;
+            border-top: 1px solid #ddd;
+            margin: 15px 0;
+        }
+    </style>
 </head>
 <body>
     <nav>
-        <a href="{% url 'home' %}"><strong>All Listings</strong></a>
-        
+        <a href="{% url 'home' %}">All Listings</a>
+
         {% if user.is_authenticated %}
-            | <a href="{% url 'my_listings' %}">My Listings</a>
-            | <a href="{% url 'my_profile' %}">My Profile</a>
-            | <span>Logged in as: {{ user.username }}</span>
-            | <form action="{% url 'logout' %}" method="post" style="display:inline;">
+            <a href="{% url 'my_listings' %}">My Listings</a>
+            <a href="{% url 'my_profile' %}">My Profile</a>
+            <span>Logged in as: {{ user.username }}</span>
+            <form action="{% url 'logout' %}" method="post">
                 {% csrf_token %}
                 <button type="submit">Logout</button>
             </form>
         {% else %}
-            | <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'login' %}">Login</a>
+            <a href="{% url 'add_user' %}">Sign Up</a>
         {% endif %}
     </nav>
 
