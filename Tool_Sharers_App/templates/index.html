@@ -4,6 +4,45 @@
 <div class="card">
     <h2>Available Listings</h2>
 
+    <form method="get" style="margin-bottom: 20px;">
+        <div style="margin-bottom: 10px;">
+            <input
+                type="text"
+                name="q"
+                placeholder="Search by title, description, or location"
+                value="{{ selected_query }}"
+                class="form-control"
+            >
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <select name="category" class="form-control">
+                <option value="">All Categories</option>
+                {% for category in categories %}
+                    <option value="{{ category.id }}"
+                        {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
+                        {{ category.name }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div style="margin-bottom: 10px;">
+            <select name="condition" class="form-control">
+                <option value="">All Conditions</option>
+                {% for value, label in condition_choices %}
+                    <option value="{{ value }}"
+                        {% if selected_condition == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <button type="submit" class="button">Search / Filter</button>
+        <a href="{% url 'home' %}" class="button">Clear</a>
+    </form>
+
     {% if listings %}
         <ul>
             {% for listing in listings %}
@@ -20,11 +59,15 @@
                             {{ listing.user.username }}
                         </a>
                     </span>
+                    <br>
+                    <span class="muted">
+                        {{ listing.category.name }} | {{ listing.get_condition_display }} | {{ listing.location }}
+                    </span>
                 </li>
             {% endfor %}
         </ul>
     {% else %}
-        <p>Nothing for rent yet!</p>
+        <p>No listings matched your search.</p>
     {% endif %}
 
     <p style="margin-top: 20px;">

@@ -2,15 +2,43 @@ from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
-from .models import User, Listing, Review, Report, Image, Transaction
+from django.db.models import Q
+from .models import User, Listing, Review, Report, Image, Transaction, Category
 from .forms import User_Form, Listing_Form, Image_Form, Review_Form, Report_Form, Edit_Profile_Form
 from django.contrib.auth import get_user_model
 
 def homePage(request):
-    #get all tools and then display
     listings = Listing.objects.all().order_by('-listing_id')
+    categories = Category.objects.all().order_by('name')
+
+    query = request.GET.get('q', '').strip()
+    category_id = request.GET.get('category', '').strip()
+    condition = request.GET.get('condition', '').strip()
+
+    if query:
+        listings = listings.filter(
+            Q(title__icontains=query) |
+            Q(description__icontains=query) |
+            Q(location__icontains=query)
+        )
+
+    if category_id:
+        listings = listings.filter(category_id=category_id)
+
+    if condition:
+        listings = listings.filter(condition=condition)
+
     form = Listing_Form()
-    return render(request, 'index.html', {'listings': listings, 'form': form})
+
+    return render(request, 'index.html', {
+        'listings': listings,
+        'form': form,
+        'categories': categories,
+        'selected_query': query,
+        'selected_category': category_id,
+        'selected_condition': condition,
+        'condition_choices': Listing.Condition.choices,
+    })
 
 def add_user(request):
     if request.method == 'POST':
