@@ -41,8 +41,8 @@ class Listing_Form(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description'}),
             'price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Price per day'}),
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Address'}),
-            'condition': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Condition'}),
-            'category': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Category'}),
+            'condition': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Condition'}),
+            'category': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Category'}),
         }
 
 class Review_Form(forms.ModelForm):

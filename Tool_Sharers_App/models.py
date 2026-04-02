@@ -12,6 +12,15 @@ class User(AbstractUser):
     def __str__(self):
         return self.username
     
+class Category(models.Model):
+    name = models.CharField(max_length=100, unique=True)
+
+    class Meta:
+        verbose_name_plural = "Categories" #fix
+
+    def __str__(self):
+        return self.name
+    
 class Listing(models.Model):
     listing_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -19,8 +28,16 @@ class Listing(models.Model):
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     location = models.CharField(max_length=200)
-    condition = models.CharField(max_length=100)
-    category = models.CharField(max_length=100)
+    category = models.ForeignKey(Category, on_delete=models.PROTECT)
+
+    class Condition(models.TextChoices):
+        NEW = 'NW', 'New'
+        EXCELLENT = 'EX', 'Excellent'
+        GOOD = 'GD', 'Good'
+        FAIR = 'FR', 'Fair'
+        WELL_USED = 'WU', 'Well-Used'
+
+    condition = models.CharField(max_length=2, choices=Condition.choices, default=Condition.GOOD)
 
     def __str__(self):
         return f"{self.title} - ({self.listing_id})"
@@ -70,3 +87,4 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.rating}/5 Review by {self.buyer.username}"
+    
