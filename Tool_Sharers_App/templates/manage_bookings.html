@@ -1,0 +1,83 @@
+{% extends 'template.html' %}
+
+{% block content %}
+<div class="card">
+    <h1>Manage Your Bookings</h1>
+    <p class="muted">Track your gear requests and manage incoming rentals.</p>
+</div>
+
+<div class="card">
+    <h2>Incoming Requests (Lending)</h2>
+    {% if incoming_requests %}
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 2px solid #eee; text-align: left;">
+                    <th>Tool</th>
+                    <th>Borrower</th>
+                    <th>Dates</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in incoming_requests %}
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td><strong>{{ booking.listing.title }}</strong></td>
+                    <td>{{ booking.borrower.username }}</td>
+                    <td>{{ booking.start_date }} to {{ booking.end_date }}</td>
+                    <td><span class="badge">{{ booking.get_status_display }}</span></td>
+                    <td>
+                        {% if booking.status == 'PE' %}
+                            <form action="{% url 'approve_booking' booking.id %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="button btn-small" style="background-color: #28a745;">Approve</button>
+                            </form>
+                            <button class="button btn-small" style="background-color: #dc3545;">Decline</button>
+                        {% else %}
+                            <span class="muted">No actions available</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No one is currently requesting your gear. Maybe lower your prices?</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>My Rentals (Borrowing)</h2>
+    {% if my_rentals %}
+        {% for booking in my_rentals %}
+            <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <h3>{{ booking.listing.title }}</h3>
+                    <strong>Status: {{ booking.get_status_display }}</strong>
+                </div>
+                <p>Owner: <strong>{{ booking.listing.user.username }}</strong></p>
+                <p>Dates: {{ booking.start_date }} to {{ booking.end_date }}</p>
+                <p>Total Cost: ${{ booking.total_cost }}</p>
+
+                {% if booking.status == 'AP' or booking.status == 'AC' %}
+                    <div style="background-color: #eef9ff; padding: 10px; border-left: 5px solid #007bff; margin-top: 10px;">
+                        <strong>Payment Instructions:</strong><br>
+                        Please pay {{ booking.listing.user.username }} via:<br>
+                        {% if booking.listing.user.venmo_handle %}
+                            Venmo: @{{ booking.listing.user.venmo_handle }}<br>
+                        {% endif %}
+                        {% if booking.listing.user.paypal_email %}
+                            PayPal: {{ booking.listing.user.paypal_email }}
+                        {% endif %}
+                        {% if not booking.listing.user.venmo_handle and not booking.listing.user.paypal_email %}
+                            Contact owner for payment details.
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>You haven't requested any tools yet. <a href="{% url 'home' %}">Find gear.</a></p>
+    {% endif %}
+</div>
+{% endblock %}

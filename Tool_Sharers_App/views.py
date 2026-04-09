@@ -3,19 +3,30 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from .models import User, Listing, Review, Report, Image, Transaction, Category
+from .models import User, Listing, Review, Report, Image, Transaction, Category, Booking
 from .forms import User_Form, Listing_Form, Image_Form, Review_Form, Report_Form, Edit_Profile_Form
 from django.contrib.auth import get_user_model
+from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 # test comment
 
 def homePage(request):
-    listings = Listing.objects.all().order_by('-listing_id')
+    
+    today = timezone.now().date()
+    
+    listings = Listing.objects.exclude(
+        bookings__status__in=[Booking.Status.APPROVED, Booking.Status.ACTIVE],
+        bookings__start_date__lte=today,
+        bookings__end_date__gte=today).distinct().order_by('-listing_id')
+    
+    
     categories = Category.objects.all().order_by('name')
 
     query = request.GET.get('q', '').strip()
     category_id = request.GET.get('category', '').strip()
     condition = request.GET.get('condition', '').strip()
+    
 
     if query:
         listings = listings.filter(
@@ -229,7 +240,7 @@ def add_image(request, listing_id):
 
 @login_required
 def my_profile(request):
-    reviews = Review.objects.filter(seller=request.user)
+    reviews = Review.objects.filter(lender=request.user)
 
     return render(request, 'my_profile.html', {
         'profile_user': request.user,
@@ -251,9 +262,63 @@ def edit_profile(request):
 def view_profile(request, user_id):
     UserModel = get_user_model()
     profile_user = get_object_or_404(UserModel, pk=user_id)
-    reviews = Review.objects.filter(seller=profile_user)
+    reviews = Review.objects.filter(lender=profile_user)
 
     return render(request, 'view_profile.html', {
         'profile_user': profile_user,
         'reviews': reviews
     })
+@login_required
+def request_booking(request, listing_id):
+    listing = get_object_or_404(Listing, pk=listing_id)
+    
+    if request.method == 'POST':
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+        
+        booking = Booking(
+            listing = listing,
+            borrower = request.user,
+            start_date = start_date,
+            end_date = end_date,
+            status = Booking.Status.PENDING
+        )
+        
+        try:
+            booking.full_clean()
+            booking.save()
+            return redirect('manage_bookings')
+        except ValidationError as e:
+            return render(request, 'listing_detail.html', {
+                'listing': listing,
+                'error': e.message_dict if hasattr(e, 'message_dict') else e.messages
+            })
+    return redirect('view_listing', listing_id=listing_id)
+
+@login_required
+def manage_bookings(request):
+    my_rentals = Booking.objects.filter(borrower=request.user).order_by('-created_at')
+    
+    incoming_requests = Booking.objects.filter(listing__user=request.user).order_by('-created_at')
+    
+    return render(request, 'manage_bookings.html', {
+        'my_rentals': my_rentals,
+        'incoming_requests': incoming_requests
+    })
+    
+@login_required
+def approve_booking(request, booking_id):
+    booking = get_object_or_404(Booking, pk=booking_id, listing__user=request.user)
+    
+    if request.method == "POST":
+        booking.status = Booking.Status.APPROVED
+        booking.save()
+        
+        Transaction.objects.get_or_create(
+            booking = booking,
+            defaults = {
+                'final_price': booking.total_cost,
+                'payment_confirmed': False
+            }
+        )
+        return redirect('manage_bookings')

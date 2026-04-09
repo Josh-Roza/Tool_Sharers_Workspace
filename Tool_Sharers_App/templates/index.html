@@ -3,75 +3,81 @@
 {% block content %}
 <div class="card">
     <h2>Available Listings</h2>
+    <p class="muted">Showing everything currently on the shelf and ready to borrow.</p>
 
-    <form method="get" style="margin-bottom: 20px;">
-        <div style="margin-bottom: 10px;">
+    <form method="get" style="margin-bottom: 25px;">
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            
             <input
                 type="text"
                 name="q"
-                placeholder="Search by title, description, or location"
+                placeholder="Search by title, description, or location..."
                 value="{{ selected_query }}"
                 class="form-control"
             >
-        </div>
 
-        <div style="margin-bottom: 10px;">
-            <select name="category" class="form-control">
-                <option value="">All Categories</option>
-                {% for category in categories %}
-                    <option value="{{ category.id }}"
-                        {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
-                        {{ category.name }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
+            <div style="display: flex; gap: 10px;">
+                <select name="category" class="form-control" style="flex: 1;">
+                    <option value="">All Categories</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}"
+                            {% if selected_category == category.id|stringformat:"s" %}selected{% endif %}>
+                            {{ category.name }}
+                        </option>
+                    {% endfor %}
+                </select>
 
-        <div style="margin-bottom: 10px;">
-            <select name="condition" class="form-control">
-                <option value="">All Conditions</option>
-                {% for value, label in condition_choices %}
-                    <option value="{{ value }}"
-                        {% if selected_condition == value %}selected{% endif %}>
-                        {{ label }}
-                    </option>
-                {% endfor %}
-            </select>
-        </div>
+                <select name="condition" class="form-control" style="flex: 1;">
+                    <option value="">All Conditions</option>
+                    {% for value, label in condition_choices %}
+                        <option value="{{ value }}"
+                            {% if selected_condition == value %}selected{% endif %}>
+                            {{ label }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
 
-        <button type="submit" class="button">Search / Filter</button>
-        <a href="{% url 'home' %}" class="button">Clear</a>
+            <div style="display: flex; gap: 10px;">
+                <button type="submit" class="button" style="flex: 2;">Apply Filters</button>
+                <a href="{% url 'home' %}" class="button" style="flex: 1; text-align: center; background-color: #6c757d;">Clear All</a>
+            </div>
+        </div>
     </form>
 
+    <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;">
+
     {% if listings %}
-        <ul>
+        <ul style="list-style: none; padding: 0;">
             {% for listing in listings %}
-                <li class="listing-item">
+                <li class="listing-item" style="padding: 15px 0; border-bottom: 1px solid #f9f9f9;">
                     <strong>
-                        <a href="{% url 'view_listing' listing.listing_id %}">
-                            {{ listing.title }} - ${{ listing.price }}
+                        <a href="{% url 'view_listing' listing.listing_id %}" style="font-size: 1.1em;">
+                            {{ listing.title }} — ${{ listing.price }}/day
                         </a>
                     </strong>
                     <br>
-                    <span class="muted">
-                        Posted by:
-                        <a href="{% url 'view_profile' listing.user.user_id %}">
-                            {{ listing.user.username }}
-                        </a>
+                    <span class="muted" style="font-size: 0.9em;">
+                        Borrowed from 
+                        <a href="{% url 'view_profile' listing.user.user_id %}">{{ listing.user.username }}</a>
+                        in {{ listing.location }}
                     </span>
                     <br>
-                    <span class="muted">
-                        {{ listing.category.name }} | {{ listing.get_condition_display }} | {{ listing.location }}
+                    <span class="muted" style="font-size: 0.85em;">
+                        <strong>{{ listing.category.name }}</strong> | {{ listing.get_condition_display }}
                     </span>
                 </li>
             {% endfor %}
         </ul>
     {% else %}
-        <p>No listings matched your search.</p>
+        <div style="text-align: center; padding: 40px 0;">
+            <p>No gear is currently available matching those criteria.</p>
+            <a href="{% url 'home' %}" style="color: #007bff;">Reset all filters</a>
+        </div>
     {% endif %}
 
-    <p style="margin-top: 20px;">
-        <a class="button" href="{% url 'create_listing' %}">+ Post a New Listing</a>
-    </p>
+    <div style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px;">
+        <a class="button" href="{% url 'create_listing' %}" style="background-color: #28a745;">+ Post a New Listing</a>
+    </div>
 </div>
 {% endblock %}
