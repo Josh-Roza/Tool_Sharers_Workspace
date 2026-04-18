@@ -48,7 +48,10 @@ urlpatterns = [
     path("delete-user/", views.delete_user, name="delete_user"),
     
     path("bookings/", views.manage_bookings, name="manage_bookings"),
-    path("booking<int:booking_id>/approve/", views.approve_booking, name="approve_booking"),
+    path("booking/<int:booking_id>/approve/", views.approve_booking, name="approve_booking"),
+    path("booking/<int:booking_id>/confirm-payment/", views.confirm_payment, name="confirm_payment"),
+    path("booking/<int:booking_id>/<str:action>/", views.action_booking, name="action_booking"),
+
 
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

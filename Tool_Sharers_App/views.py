@@ -322,3 +322,40 @@ def approve_booking(request, booking_id):
             }
         )
         return redirect('manage_bookings')
+    
+@login_required
+def action_booking(request, booking_id, action):
+    booking = get_object_or_404(Booking, pk=booking_id)
+
+    is_lender = booking.listing.user == request.user
+    is_borrower = booking.borrower == request.user
+
+    if not (is_lender or is_borrower):
+        return redirect('manage_bookings')
+    
+    if request.method == "POST":
+        if action == 'decline' and is_lender:
+            booking.status = Booking.Status.DECLINED
+        elif action == 'cancel' and is_borrower:
+            booking.status = Booking.Status.CANCELLED
+        elif action == 'pickup' and is_borrower:
+            booking.status = Booking.Status.ACTIVE
+        elif action == 'return' and is_lender:
+            booking.status = Booking.Status.RETURNED
+
+        booking.save()
+
+    return redirect('manage_bookings')
+
+@login_required
+def confirm_payment(request, booking_id):
+    if request.method == "POST":
+        # Ensure only the lender can confirm
+        booking = get_object_or_404(Booking, pk=booking_id, listing__user=request.user)
+        
+        # Access the related transaction and update it
+        transaction = booking.payment_record
+        transaction.payment_confirmed = True
+        transaction.save()
+        
+    return redirect('manage_bookings')

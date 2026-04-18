@@ -21,10 +21,13 @@ class User_Form(forms.ModelForm):
 class Edit_Profile_Form(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['email', 'phone_number']
+        fields = ['email', 'phone_number', 'venmo_handle', 'paypal_email', 'preferred_payment']
         widgets = {
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
             'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}),
+            'venmo_handle': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Venmo Username (no @)'}),
+            'paypal_email': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'PayPal Email'}),
+            'preferred_payment': forms.Select(attrs={'class': 'form-control'}),
         }
 
 class Listing_Form(forms.ModelForm):

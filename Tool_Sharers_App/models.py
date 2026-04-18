@@ -11,6 +11,21 @@ class User(AbstractUser):
     verified = models.BooleanField(default=False)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     email = models.EmailField(unique=True)
+    venmo_handle = models.CharField(max_length=50, blank=True, null=True)
+    paypal_email = models.EmailField(blank=True, null=True)
+
+    class PaymentMethod(models.TextChoices):
+        VENMO = 'VE', 'Venmo'
+        PAYPAL = 'PP', 'PayPal'
+        NONE = 'NO', 'None'
+
+    # Add this missing field
+    preferred_payment = models.CharField(
+        max_length=2,
+        choices=PaymentMethod.choices,
+        default=PaymentMethod.NONE
+    )
+
     
     def __str__(self):
         return self.username
@@ -52,6 +67,7 @@ class Booking(models.Model):
         ACTIVE = 'AC', 'Active'
         RETURNED = 'RE', 'Returned'
         CANCELLED = 'CA', 'Cancelled'
+        DECLINED = 'DE', 'Declined'
     
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='bookings')
     borrower = models.ForeignKey(User, on_delete=models.CASCADE, related_name="bookings_made")
