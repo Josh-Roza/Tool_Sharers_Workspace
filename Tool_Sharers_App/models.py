@@ -1,12 +1,8 @@
 from django.db import models
-<<<<<<< HEAD
-from django.contrib.auth.models import AbstractUser
-=======
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import AbstractUser
 from datetime import timedelta
->>>>>>> origin/master
 
 class User(AbstractUser):
     username = models.CharField(max_length=150, unique=True)
@@ -15,8 +11,6 @@ class User(AbstractUser):
     verified = models.BooleanField(default=False)
     phone_number = models.CharField(max_length=20, blank=True, null=True)
     email = models.EmailField(unique=True)
-<<<<<<< HEAD
-=======
     venmo_handle = models.CharField(max_length=50, blank=True, null=True)
     paypal_email = models.EmailField(blank=True, null=True)
 
@@ -32,13 +26,10 @@ class User(AbstractUser):
         default=PaymentMethod.NONE
     )
 
->>>>>>> origin/master
     
     def __str__(self):
         return self.username
     
-<<<<<<< HEAD
-=======
 class Category(models.Model):
     name = models.CharField(max_length=100, unique=True)
 
@@ -48,7 +39,6 @@ class Category(models.Model):
     def __str__(self):
         return self.name
     
->>>>>>> origin/master
 class Listing(models.Model):
     listing_id = models.AutoField(primary_key=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -56,26 +46,6 @@ class Listing(models.Model):
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     location = models.CharField(max_length=200)
-<<<<<<< HEAD
-    condition = models.CharField(max_length=100)
-    category = models.CharField(max_length=100)
-
-    def __str__(self):
-        return f"{self.title} - ({self.listing_id})"
-
-class Transaction(models.Model):
-    transaction_id = models.AutoField(primary_key=True)
-    listing = models.ForeignKey(Listing, on_delete=models.CASCADE)
-    buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="transactions_bought")
-    seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="transactions_sold")
-    transaction_date = models.DateTimeField(auto_now_add=True)
-    listed_price = models.DecimalField(max_digits=10, decimal_places=2)
-    deposit_status = models.CharField(max_length=100)
-    rental_status = models.CharField(max_length=100)
-
-    def __str__(self):
-        return f"Transaction: {self.listing.title} to {self.buyer.username}"
-=======
     category = models.ForeignKey(Category, on_delete=models.PROTECT)
 
     class Condition(models.TextChoices):
@@ -167,7 +137,6 @@ class Transaction(models.Model):
 
     def __str__(self):
         return f"Agreement for {self.booking.listing.title}"
->>>>>>> origin/master
 
 class Report(models.Model):
     report_id = models.AutoField(primary_key=True)
@@ -194,19 +163,10 @@ class Image(models.Model):
 class Review(models.Model):
     review_id = models.AutoField(primary_key=True)
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE)
-<<<<<<< HEAD
-    buyer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviews_written")
-    seller = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviews_received")
-=======
     borrower = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviews_written")
     lender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviews_received")
->>>>>>> origin/master
     rating = models.IntegerField()
     comment = models.TextField()
 
     def __str__(self):
-<<<<<<< HEAD
-        return f"{self.rating}/5 Review by {self.buyer.username}"
-=======
         return f"{self.rating}/5 Review by {self.borrower.username}"
->>>>>>> origin/master

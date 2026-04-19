@@ -3,24 +3,6 @@
 {% block content %}
 <div class="card">
     <h2>Available Listings</h2>
-<<<<<<< HEAD
-
-    {% if listings %}
-        <ul>
-            {% for listing in listings %}
-                <li class="listing-item">
-                    <strong>
-                        <a href="{% url 'view_listing' listing.listing_id %}">
-                            {{ listing.title }} - ${{ listing.price }}
-                        </a>
-                    </strong>
-                    <br>
-                    <span class="muted">
-                        Posted by:
-                        <a href="{% url 'view_profile' listing.user.user_id %}">
-                            {{ listing.user.username }}
-                        </a>
-=======
     <p class="muted">Showing everything currently on the shelf and ready to borrow.</p>
 
     <form method="get" style="margin-bottom: 25px;">
@@ -83,20 +65,11 @@
                     <br>
                     <span class="muted" style="font-size: 0.85em;">
                         <strong>{{ listing.category.name }}</strong> | {{ listing.get_condition_display }}
->>>>>>> origin/master
                     </span>
                 </li>
             {% endfor %}
         </ul>
     {% else %}
-<<<<<<< HEAD
-        <p>Nothing for rent yet!</p>
-    {% endif %}
-
-    <p style="margin-top: 20px;">
-        <a class="button" href="{% url 'create_listing' %}">+ Post a New Listing</a>
-    </p>
-=======
         <div style="text-align: center; padding: 40px 0;">
             <p>No gear is currently available matching those criteria.</p>
             <a href="{% url 'home' %}" style="color: #007bff;">Reset all filters</a>
@@ -106,6 +79,5 @@
     <div style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px;">
         <a class="button" href="{% url 'create_listing' %}" style="background-color: #28a745;">+ Post a New Listing</a>
     </div>
->>>>>>> origin/master
 </div>
 {% endblock %}

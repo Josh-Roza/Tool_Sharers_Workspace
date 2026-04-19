@@ -2,17 +2,6 @@ from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
-<<<<<<< HEAD
-from .models import User, Listing, Review, Report, Image, Transaction
-from .forms import User_Form, Listing_Form, Image_Form, Review_Form, Report_Form, Edit_Profile_Form
-from django.contrib.auth import get_user_model
-
-def homePage(request):
-    #get all tools and then display
-    listings = Listing.objects.all().order_by('-listing_id')
-    form = Listing_Form()
-    return render(request, 'index.html', {'listings': listings, 'form': form})
-=======
 from django.db.models import Q
 from .models import User, Listing, Review, Report, Image, Transaction, Category, Booking
 from .forms import User_Form, Listing_Form, Image_Form, Review_Form, Report_Form, Edit_Profile_Form
@@ -63,7 +52,6 @@ def homePage(request):
         'selected_condition': condition,
         'condition_choices': Listing.Condition.choices,
     })
->>>>>>> origin/master
 
 def add_user(request):
     if request.method == 'POST':
@@ -252,11 +240,7 @@ def add_image(request, listing_id):
 
 @login_required
 def my_profile(request):
-<<<<<<< HEAD
-    reviews = Review.objects.filter(seller=request.user)
-=======
     reviews = Review.objects.filter(lender=request.user)
->>>>>>> origin/master
 
     return render(request, 'my_profile.html', {
         'profile_user': request.user,
@@ -278,18 +262,11 @@ def edit_profile(request):
 def view_profile(request, user_id):
     UserModel = get_user_model()
     profile_user = get_object_or_404(UserModel, pk=user_id)
-<<<<<<< HEAD
-    reviews = Review.objects.filter(seller=profile_user)
-=======
     reviews = Review.objects.filter(lender=profile_user)
->>>>>>> origin/master
 
     return render(request, 'view_profile.html', {
         'profile_user': profile_user,
         'reviews': reviews
-<<<<<<< HEAD
-    })
-=======
     })
 @login_required
 def request_booking(request, listing_id):
@@ -382,4 +359,3 @@ def confirm_payment(request, booking_id):
         transaction.save()
         
     return redirect('manage_bookings')
->>>>>>> origin/master
