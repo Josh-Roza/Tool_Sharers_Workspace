@@ -1,0 +1,128 @@
+{% extends 'template.html' %}
+
+{% block content %}
+<div class="card">
+    <h1>Manage Your Bookings</h1>
+    <p class="muted">Track your requests and manage incoming rentals.</p>
+</div>
+
+<div class="card">
+    <h2>Incoming Requests (Lending)</h2>
+    {% if incoming_requests %}
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="border-bottom: 2px solid #eee; text-align: left;">
+                    <th>Tool</th>
+                    <th>Borrower</th>
+                    <th>Dates</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for booking in incoming_requests %}
+                <tr style="border-bottom: 1px solid #eee;">
+                    <td><strong>{{ booking.listing.title }}</strong></td>
+                    <td>{{ booking.borrower.username }}</td>
+                    <td>{{ booking.start_date }} to {{ booking.end_date }}</td>
+                    <td><span class="badge">{{ booking.get_status_display }}</span></td>
+                    <td>
+                        {% if booking.status == 'PE' %}
+                            <form action="{% url 'approve_booking' booking.id %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="button btn-small" style="background-color: #28a745;">Approve</button>
+                            </form>
+                            <form action="{% url 'action_booking' booking.id 'decline' %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="button btn-small" style="background-color: #dc3545;">Decline</button>
+                            </form>
+                            
+                        {% elif booking.status == 'AP' or booking.status == 'AC' %}
+                            
+                            {% if not booking.payment_record.payment_confirmed %}
+                                <form action="{% url 'confirm_payment' booking.id %}" method="post" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="button btn-small" style="background-color: #ffc107; color: black;">Confirm Payment</button>
+                                </form>
+                            {% else %}
+                                <span class="badge" style="background-color: #17a2b8; color: white; padding: 5px 10px; border-radius: 4px;">Paid ✓</span>
+                            {% endif %}
+
+                            {% if booking.status == 'AC' %}
+                                <form action="{% url 'action_booking' booking.id 'return' %}" method="post" style="display:inline;">
+                                    {% csrf_token %}
+                                    <button type="submit" class="button btn-small" style="background-color: #007bff;">Mark Returned</button>
+                                </form>
+                            {% endif %}
+                            
+                        {% else %}
+                            <span class="muted">No actions available</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p>No one is currently requesting your gear.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h2>My Rentals (Borrowing)</h2>
+    {% if my_rentals %}
+        {% for booking in my_rentals %}
+            <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <h3>{{ booking.listing.title }}</h3>
+                    <strong>Status: {{ booking.get_status_display }}</strong>
+                </div>
+                <p>Owner: <strong>{{ booking.listing.user.username }}</strong></p>
+                <p>Dates: {{ booking.start_date }} to {{ booking.end_date }}</p>
+                <p>Total Cost: ${{ booking.total_cost }}</p>
+
+                {% if booking.status == 'AP' or booking.status == 'AC' %}
+                    <div style="background-color: #eef9ff; padding: 15px; border-left: 5px solid #007bff; margin-top: 10px;">
+                        {% if booking.payment_record.payment_confirmed %}
+                            <strong style="color: #28a745;">Payment Confirmed ✓</strong>
+                        {% else %}
+                            <strong>Payment Instructions:</strong><br>
+                            
+                            {% with lender=booking.listing.user %}
+                                {% if lender.preferred_payment == 'VE' and lender.venmo_handle %}
+                                    <p>Please pay via <strong>Venmo (Preferred)</strong>: @{{ lender.venmo_handle }}</p>
+                                {% elif lender.preferred_payment == 'PP' and lender.paypal_email %}
+                                    <p>Please pay via <strong>PayPal (Preferred)</strong>: {{ lender.paypal_email }}</p>
+                                {% else %}
+                                    {% if lender.venmo_handle %}Venmo: @{{ lender.venmo_handle }}<br>{% endif %}
+                                    {% if lender.paypal_email %}PayPal: {{ lender.paypal_email }}{% endif %}
+                                    {% if not lender.venmo_handle and not lender.paypal_email %}
+                                        <em>Contact owner for payment details.</em>
+                                    {% endif %}
+                                {% endif %}
+                            {% endwith %}
+                        {% endif %}
+                    </div>
+                {% endif %}
+                <div style="margin-top: 10px;">
+                    {% if booking.status == 'PE' or booking.status == 'AP' %}
+                        <form action="{% url 'action_booking' booking.id 'cancel' %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="button btn-small" style="background-color: #6c757d;">Cancel Request</button>
+                        </form>
+                    {% endif %}
+                    
+                    {% if booking.status == 'AP' %}
+                        <form action="{% url 'action_booking' booking.id 'pickup' %}" method="post" style="display:inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="button btn-small" style="background-color: #28a745;">Mark as Picked Up</button>
+                        </form>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>You haven't requested any tools yet. <a href="{% url 'home' %}">Take a look.</a></p>
+    {% endif %}
+</div>
+{% endblock %}

@@ -21,10 +21,20 @@ class User_Form(forms.ModelForm):
 class Edit_Profile_Form(forms.ModelForm):
     class Meta:
         model = User
+<<<<<<< HEAD
         fields = ['email', 'phone_number']
         widgets = {
             'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
             'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}),
+=======
+        fields = ['email', 'phone_number', 'venmo_handle', 'paypal_email', 'preferred_payment']
+        widgets = {
+            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}),
+            'venmo_handle': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Venmo Username (no @)'}),
+            'paypal_email': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'PayPal Email'}),
+            'preferred_payment': forms.Select(attrs={'class': 'form-control'}),
+>>>>>>> origin/master
         }
 
 class Listing_Form(forms.ModelForm):
@@ -41,8 +51,13 @@ class Listing_Form(forms.ModelForm):
             'description': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Description'}),
             'price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'Price per day'}),
             'location': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Address'}),
+<<<<<<< HEAD
             'condition': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Condition'}),
             'category': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Category'}),
+=======
+            'condition': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Condition'}),
+            'category': forms.Select(attrs={'class': 'form-control', 'placeholder': 'Category'}),
+>>>>>>> origin/master
         }
 
 class Review_Form(forms.ModelForm):

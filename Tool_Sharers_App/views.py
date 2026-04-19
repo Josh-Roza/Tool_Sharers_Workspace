@@ -2,6 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
+<<<<<<< HEAD
 from .models import User, Listing, Review, Report, Image, Transaction
 from .forms import User_Form, Listing_Form, Image_Form, Review_Form, Report_Form, Edit_Profile_Form
 from django.contrib.auth import get_user_model
@@ -11,6 +12,58 @@ def homePage(request):
     listings = Listing.objects.all().order_by('-listing_id')
     form = Listing_Form()
     return render(request, 'index.html', {'listings': listings, 'form': form})
+=======
+from django.db.models import Q
+from .models import User, Listing, Review, Report, Image, Transaction, Category, Booking
+from .forms import User_Form, Listing_Form, Image_Form, Review_Form, Report_Form, Edit_Profile_Form
+from django.contrib.auth import get_user_model
+from django.utils import timezone
+from django.core.exceptions import ValidationError
+
+# test comment
+
+def homePage(request):
+    
+    today = timezone.now().date()
+    
+    listings = Listing.objects.exclude(
+        bookings__status__in=[Booking.Status.APPROVED, Booking.Status.ACTIVE],
+        bookings__start_date__lte=today,
+        bookings__end_date__gte=today).distinct().order_by('-listing_id')
+    
+    
+    categories = Category.objects.all().order_by('name')
+
+    query = request.GET.get('q', '').strip()
+    category_id = request.GET.get('category', '').strip()
+    condition = request.GET.get('condition', '').strip()
+    
+
+    if query:
+        listings = listings.filter(
+            Q(title__icontains=query) |
+            Q(description__icontains=query) |
+            Q(location__icontains=query)
+        )
+
+    if category_id:
+        listings = listings.filter(category_id=category_id)
+
+    if condition:
+        listings = listings.filter(condition=condition)
+
+    form = Listing_Form()
+
+    return render(request, 'index.html', {
+        'listings': listings,
+        'form': form,
+        'categories': categories,
+        'selected_query': query,
+        'selected_category': category_id,
+        'selected_condition': condition,
+        'condition_choices': Listing.Condition.choices,
+    })
+>>>>>>> origin/master
 
 def add_user(request):
     if request.method == 'POST':
@@ -199,7 +252,11 @@ def add_image(request, listing_id):
 
 @login_required
 def my_profile(request):
+<<<<<<< HEAD
     reviews = Review.objects.filter(seller=request.user)
+=======
+    reviews = Review.objects.filter(lender=request.user)
+>>>>>>> origin/master
 
     return render(request, 'my_profile.html', {
         'profile_user': request.user,
@@ -221,9 +278,108 @@ def edit_profile(request):
 def view_profile(request, user_id):
     UserModel = get_user_model()
     profile_user = get_object_or_404(UserModel, pk=user_id)
+<<<<<<< HEAD
     reviews = Review.objects.filter(seller=profile_user)
+=======
+    reviews = Review.objects.filter(lender=profile_user)
+>>>>>>> origin/master
 
     return render(request, 'view_profile.html', {
         'profile_user': profile_user,
         'reviews': reviews
+<<<<<<< HEAD
     })
+=======
+    })
+@login_required
+def request_booking(request, listing_id):
+    listing = get_object_or_404(Listing, pk=listing_id)
+    
+    if request.method == 'POST':
+        start_date = request.POST.get('start_date')
+        end_date = request.POST.get('end_date')
+        
+        booking = Booking(
+            listing = listing,
+            borrower = request.user,
+            start_date = start_date,
+            end_date = end_date,
+            status = Booking.Status.PENDING
+        )
+        
+        try:
+            booking.full_clean()
+            booking.save()
+            return redirect('manage_bookings')
+        except ValidationError as e:
+            return render(request, 'listing_detail.html', {
+                'listing': listing,
+                'error': e.message_dict if hasattr(e, 'message_dict') else e.messages
+            })
+    return redirect('view_listing', listing_id=listing_id)
+
+@login_required
+def manage_bookings(request):
+    my_rentals = Booking.objects.filter(borrower=request.user).order_by('-created_at')
+    
+    incoming_requests = Booking.objects.filter(listing__user=request.user).order_by('-created_at')
+    
+    return render(request, 'manage_bookings.html', {
+        'my_rentals': my_rentals,
+        'incoming_requests': incoming_requests
+    })
+    
+@login_required
+def approve_booking(request, booking_id):
+    booking = get_object_or_404(Booking, pk=booking_id, listing__user=request.user)
+    
+    if request.method == "POST":
+        booking.status = Booking.Status.APPROVED
+        booking.save()
+        
+        Transaction.objects.get_or_create(
+            booking = booking,
+            defaults = {
+                'final_price': booking.total_cost,
+                'payment_confirmed': False
+            }
+        )
+        return redirect('manage_bookings')
+    
+@login_required
+def action_booking(request, booking_id, action):
+    booking = get_object_or_404(Booking, pk=booking_id)
+
+    is_lender = booking.listing.user == request.user
+    is_borrower = booking.borrower == request.user
+
+    if not (is_lender or is_borrower):
+        return redirect('manage_bookings')
+    
+    if request.method == "POST":
+        if action == 'decline' and is_lender:
+            booking.status = Booking.Status.DECLINED
+        elif action == 'cancel' and is_borrower:
+            booking.status = Booking.Status.CANCELLED
+        elif action == 'pickup' and is_borrower:
+            booking.status = Booking.Status.ACTIVE
+        elif action == 'return' and is_lender:
+            booking.status = Booking.Status.RETURNED
+
+        booking.save()
+
+    return redirect('manage_bookings')
+
+@login_required
+def confirm_payment(request, booking_id):
+    if request.method == "POST":
+        # Ensure only the lender can confirm
+        booking = get_object_or_404(Booking, pk=booking_id, listing__user=request.user)
+        
+        # Access the related transaction and update it
+        transaction = booking.payment_record
+        transaction.payment_confirmed = True
+        transaction.save()
+        
+    return redirect('manage_bookings')
+>>>>>>> origin/master

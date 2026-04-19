@@ -28,10 +28,18 @@ urlpatterns = [
 
     path("admin/", admin.site.urls), 
     path("", views.homePage, name="home"),
+<<<<<<< HEAD
+=======
+    
+>>>>>>> origin/master
     path("add_user/", views.add_user, name="add_user"),
     path("create/", views.create_listing, name="create_listing"),
     path("edit/<int:listing_id>/", views.edit_listing, name="edit_listing"),
     path("listing/<int:listing_id>/", views.view_listing, name="view_listing"),
+<<<<<<< HEAD
+=======
+    path("listing/<int:listing_id>/request/", views.request_booking, name="request_booking"),
+>>>>>>> origin/master
     path("my-listings/", views.my_listings, name="my_listings"),
     path("delete/<int:listing_id>/", views.delete_listing, name='delete_listing'),
 
@@ -44,4 +52,16 @@ urlpatterns = [
     path("profile/<int:user_id>/", views.view_profile, name="view_profile"),
     path("report/<int:user_id>/", views.create_report, name="create_report"),
     path("delete-user/", views.delete_user, name="delete_user"),
+<<<<<<< HEAD
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+=======
+    
+    path("bookings/", views.manage_bookings, name="manage_bookings"),
+    path("booking/<int:booking_id>/approve/", views.approve_booking, name="approve_booking"),
+    path("booking/<int:booking_id>/confirm-payment/", views.confirm_payment, name="confirm_payment"),
+    path("booking/<int:booking_id>/<str:action>/", views.action_booking, name="action_booking"),
+
+
+    
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+>>>>>>> origin/master
