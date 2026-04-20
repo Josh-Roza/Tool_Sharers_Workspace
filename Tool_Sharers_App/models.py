@@ -3,6 +3,7 @@ from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import AbstractUser
 from datetime import timedelta
+from django.utils import timezone
 
 class User(AbstractUser):
     username = models.CharField(max_length=150, unique=True)
@@ -57,9 +58,32 @@ class Listing(models.Model):
 
     condition = models.CharField(max_length=2, choices=Condition.choices, default=Condition.GOOD)
 
+    @property
+    def current_state(self):
+        today = timezone.now().date()
+
+        if self.bookings.filter(
+            status=Booking.Status.ACTIVE,
+            start_date__lte=today,
+            end_date__gte=today
+        ).exists():
+            return "Borrowed"
+
+        if self.bookings.filter(
+            status=Booking.Status.APPROVED,
+            start_date__lte=today,
+            end_date__gte=today
+        ).exists():
+            return "Reserved"
+
+        if self.bookings.filter(status=Booking.Status.PENDING).exists():
+            return "Pending Requests"
+
+        return "Available"
+
     def __str__(self):
         return f"{self.title} - ({self.listing_id})"
-    
+
 class Booking(models.Model):
     class Status(models.TextChoices):
         PENDING = 'PE', 'Pending'
