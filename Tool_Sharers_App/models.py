@@ -4,6 +4,7 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.models import AbstractUser
 from datetime import timedelta
 from django.utils import timezone
+from django.conf import settings
 
 class User(AbstractUser):
     username = models.CharField(max_length=150, unique=True)
@@ -83,6 +84,17 @@ class Listing(models.Model):
 
     def __str__(self):
         return f"{self.title} - ({self.listing_id})"
+
+
+class GeocodedAddress(models.Model):
+    query = models.CharField(max_length=255, unique=True)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.query
 
 class Booking(models.Model):
     class Status(models.TextChoices):
@@ -206,3 +218,48 @@ class Message(models.Model):
 
     def __str__(self):
         return f"Message from {self.sender} to {self.recipient} about {self.listing.title}"
+
+class SupportTicket(models.Model):
+    STATUS_CHOICES = [
+        ("open", "Open"),
+        ("in_progress", "In Progress"),
+        ("resolved", "Resolved"),
+        ("closed", "Closed"),
+    ]
+
+    CATEGORY_CHOICES = [
+        ("dispute", "Dispute"),
+        ("report_user", "Report User"),
+        ("payment_issue", "Payment Issue"),
+        ("other", "Other"),
+    ]
+
+    created_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="support_tickets"
+    )
+
+    subject = models.CharField(max_length=200)
+    description = models.TextField()
+
+    category = models.CharField(max_length=30, choices=CATEGORY_CHOICES)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="open")
+
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.subject
+
+
+class TicketMessage(models.Model):
+    ticket = models.ForeignKey(
+        SupportTicket,
+        on_delete=models.CASCADE,
+        related_name="messages"
+    )
+
+    sender = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)

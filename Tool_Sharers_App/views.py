@@ -3,13 +3,14 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from .models import User, Listing, Review, Report, Image, Transaction, Category, Booking, Message
-from .forms import User_Form, Listing_Form, Image_Form, Review_Form, Report_Form, Edit_Profile_Form, Message_Form
+from .models import User, Listing, Review, Report, Image, Transaction, Category, Booking, Message, SupportTicket, TicketMessage
+from .forms import User_Form, Listing_Form, Image_Form, Review_Form, Report_Form, Edit_Profile_Form, Message_Form, SupportTicketForm, TicketMessageForm
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 
-# test comment
+from .geocoding import geocode_address, haversine_miles
+
 
 def homePage(request):
     
@@ -19,14 +20,13 @@ def homePage(request):
         bookings__status__in=[Booking.Status.APPROVED, Booking.Status.ACTIVE],
         bookings__start_date__lte=today,
         bookings__end_date__gte=today).distinct().order_by('-listing_id')
-    
-    
+
     categories = Category.objects.all().order_by('name')
 
     query = request.GET.get('q', '').strip()
     category_id = request.GET.get('category', '').strip()
     condition = request.GET.get('condition', '').strip()
-    
+    location_query = request.GET.get('location', '').strip()
 
     if query:
         listings = listings.filter(
@@ -41,6 +41,23 @@ def homePage(request):
     if condition:
         listings = listings.filter(condition=condition)
 
+    origin_coords = geocode_address(location_query) if location_query else None
+    if origin_coords is not None:
+        listings_list = list(listings)
+        for listing in listings_list:
+            listing_coords = geocode_address(listing.location) if listing.location else None
+            if listing_coords is None:
+                listing.distance_display = None
+                listing.distance_miles = None
+                continue
+
+            miles = haversine_miles(origin_coords, listing_coords)
+            listing.distance_miles = miles
+            listing.distance_display = f"{miles:.1f} mi"
+
+        listings_list.sort(key=lambda l: (l.distance_miles is None, l.distance_miles or 0.0))
+        listings = listings_list
+
     form = Listing_Form()
 
     return render(request, 'index.html', {
@@ -48,6 +65,7 @@ def homePage(request):
         'form': form,
         'categories': categories,
         'selected_query': query,
+        'selected_location': location_query,
         'selected_category': category_id,
         'selected_condition': condition,
         'condition_choices': Listing.Condition.choices,
@@ -467,3 +485,44 @@ def send_message(request, listing_id):
             return redirect('conversation', listing_id=listing.listing_id, user_id=listing.user.user_id)
 
     return redirect('view_listing', listing_id=listing.listing_id)
+
+@login_required
+def create_ticket(request):
+    if request.method == "POST":
+        form = SupportTicketForm(request.POST)
+        if form.is_valid():
+            ticket = form.save(commit=False)
+            ticket.created_by = request.user
+            ticket.save()
+            return redirect("ticket_detail", ticket.id)
+    else:
+        form = SupportTicketForm()
+
+    return render(request, "create_ticket.html", {"form": form})
+
+
+@login_required
+def ticket_list(request):
+    tickets = SupportTicket.objects.filter(created_by=request.user)
+    return render(request, "ticket_list.html", {"tickets": tickets})
+
+
+@login_required
+def ticket_detail(request, ticket_id):
+    ticket = get_object_or_404(SupportTicket, id=ticket_id)
+
+    if request.method == "POST":
+        form = TicketMessageForm(request.POST)
+        if form.is_valid():
+            msg = form.save(commit=False)
+            msg.ticket = ticket
+            msg.sender = request.user
+            msg.save()
+            return redirect("ticket_detail", ticket.id)
+    else:
+        form = TicketMessageForm()
+
+    return render(request, "ticket_detail.html", {
+        "ticket": ticket,
+        "form": form
+    })

@@ -1,6 +1,6 @@
 from django import forms
 from django.core.validators import MinValueValidator, MaxValueValidator
-from .models import Listing, Report, Review, User, Image, Message
+from .models import Listing, Report, Review, User, Image, Message, SupportTicket, TicketMessage
 
 class User_Form(forms.ModelForm):
     accept_waiver = forms.BooleanField(
@@ -93,3 +93,14 @@ class Message_Form(forms.ModelForm):
                 'rows': 4,
             }),
         }
+
+class SupportTicketForm(forms.ModelForm):
+    class Meta:
+        model = SupportTicket
+        fields = ["subject", "description", "category"]
+
+
+class TicketMessageForm(forms.ModelForm):
+    class Meta:
+        model = TicketMessage
+        fields = ["message"]
