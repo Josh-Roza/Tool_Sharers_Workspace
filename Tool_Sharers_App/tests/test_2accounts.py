@@ -8,8 +8,8 @@ import time
 
 
 """
-in order to test an individual file " python manage.py test Tool_Sharers_App.tests.[filename] " ie. python manage.py test Tool_Sharers_App.tests.test_2accounts 
-in order to test all the tests " python manage.py test "
+in order to test an individual file *do not attach the filetype* : " python manage.py test Tool_Sharers_App.tests.[filename] " ie. python manage.py test Tool_Sharers_App.tests.test_2accounts 
+in order to test all the tests :" python manage.py test "
 
 """
 
