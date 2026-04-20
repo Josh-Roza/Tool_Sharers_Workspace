@@ -49,6 +49,7 @@ urlpatterns = [
     
     path("bookings/", views.manage_bookings, name="manage_bookings"),
     path("booking/<int:booking_id>/approve/", views.approve_booking, name="approve_booking"),
+    path("booking/<int:booking_id>/mark-payment-sent/", views.mark_payment_sent, name="mark_payment_sent"),
     path("booking/<int:booking_id>/confirm-payment/", views.confirm_payment, name="confirm_payment"),
     path("booking/<int:booking_id>/<str:action>/", views.action_booking, name="action_booking"),
 

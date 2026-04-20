@@ -134,6 +134,7 @@ class Transaction(models.Model):
     final_price = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     security_deposit_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     
+    payment_sent = models.BooleanField(default=False)
     payment_confirmed = models.BooleanField(default=False)
     deposit_status = models.BooleanField(default=False)
     

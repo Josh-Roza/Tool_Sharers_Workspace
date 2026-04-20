@@ -315,9 +315,10 @@ def approve_booking(request, booking_id):
         booking.save()
         
         Transaction.objects.get_or_create(
-            booking = booking,
-            defaults = {
+            booking=booking,
+            defaults={
                 'final_price': booking.total_cost,
+                'payment_sent': False,
                 'payment_confirmed': False
             }
         )
@@ -334,13 +335,17 @@ def action_booking(request, booking_id, action):
         return redirect('manage_bookings')
     
     if request.method == "POST":
-        if action == 'decline' and is_lender:
+        if action == 'decline' and is_lender and booking.status == Booking.Status.PENDING:
             booking.status = Booking.Status.DECLINED
-        elif action == 'cancel' and is_borrower:
+
+        elif action == 'cancel' and is_borrower and booking.status in [Booking.Status.PENDING, Booking.Status.APPROVED]:
             booking.status = Booking.Status.CANCELLED
-        elif action == 'pickup' and is_borrower:
-            booking.status = Booking.Status.ACTIVE
-        elif action == 'return' and is_lender:
+
+        elif action == 'pickup' and is_borrower and booking.status == Booking.Status.APPROVED:
+            if hasattr(booking, 'payment_record') and booking.payment_record.payment_confirmed:
+                booking.status = Booking.Status.ACTIVE
+
+        elif action == 'return' and is_lender and booking.status == Booking.Status.ACTIVE:
             booking.status = Booking.Status.RETURNED
 
         booking.save()
@@ -348,16 +353,33 @@ def action_booking(request, booking_id, action):
     return redirect('manage_bookings')
 
 @login_required
+def mark_payment_sent(request, booking_id):
+    if request.method == "POST":
+        booking = get_object_or_404(Booking, pk=booking_id, borrower=request.user)
+
+        if booking.status != Booking.Status.APPROVED:
+            return redirect('manage_bookings')
+
+        transaction = booking.payment_record
+        transaction.payment_sent = True
+        transaction.save()
+
+    return redirect('manage_bookings')
+
+@login_required
 def confirm_payment(request, booking_id):
     if request.method == "POST":
-        # Ensure only the lender can confirm
         booking = get_object_or_404(Booking, pk=booking_id, listing__user=request.user)
-        
-        # Access the related transaction and update it
+
+        if booking.status != Booking.Status.APPROVED:
+            return redirect('manage_bookings')
+
         transaction = booking.payment_record
-        transaction.payment_confirmed = True
-        transaction.save()
-        
+
+        if transaction.payment_sent:
+            transaction.payment_confirmed = True
+            transaction.save()
+
     return redirect('manage_bookings')
 
 @login_required

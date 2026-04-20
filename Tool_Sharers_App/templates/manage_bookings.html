@@ -38,17 +38,22 @@
                             </form>
                             
                         {% elif booking.status == 'AP' or booking.status == 'AC' %}
-                            
-                            {% if not booking.payment_record.payment_confirmed %}
-                                <form action="{% url 'confirm_payment' booking.id %}" method="post" style="display:inline;">
-                                    {% csrf_token %}
-                                    <button type="submit" class="button btn-small" style="background-color: #ffc107; color: black;">Confirm Payment</button>
-                                </form>
-                            {% else %}
-                                <span class="badge" style="background-color: #17a2b8; color: white; padding: 5px 10px; border-radius: 4px;">Paid ✓</span>
+
+                            {% if booking.status == 'AP' %}
+                                {% if not booking.payment_record.payment_sent %}
+                                    <span class="muted">Waiting for renter to send payment</span>
+                                {% elif not booking.payment_record.payment_confirmed %}
+                                    <form action="{% url 'confirm_payment' booking.id %}" method="post" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="button btn-small" style="background-color: #ffc107; color: black;">Confirm Payment</button>
+                                    </form>
+                                {% else %}
+                                    <span class="badge" style="background-color: #17a2b8; color: white; padding: 5px 10px; border-radius: 4px;">Paid ✓</span>
+                                {% endif %}
                             {% endif %}
 
                             {% if booking.status == 'AC' %}
+                                <span class="badge" style="background-color: #17a2b8; color: white; padding: 5px 10px; border-radius: 4px;">Paid ✓</span>
                                 <form action="{% url 'action_booking' booking.id 'return' %}" method="post" style="display:inline;">
                                     {% csrf_token %}
                                     <button type="submit" class="button btn-small" style="background-color: #007bff;">Mark Returned</button>
@@ -113,10 +118,23 @@
                     {% endif %}
                     
                     {% if booking.status == 'AP' %}
-                        <form action="{% url 'action_booking' booking.id 'pickup' %}" method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="button btn-small" style="background-color: #28a745;">Mark as Picked Up</button>
-                        </form>
+                        {% if not booking.payment_record.payment_sent %}
+                            <form action="{% url 'mark_payment_sent' booking.id %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="button btn-small" style="background-color: #17a2b8;">I Sent Payment</button>
+                            </form>
+                        {% elif not booking.payment_record.payment_confirmed %}
+                            <span class="muted">Waiting for owner to confirm payment</span>
+                        {% else %}
+                            <form action="{% url 'action_booking' booking.id 'pickup' %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="button btn-small" style="background-color: #28a745;">Mark as Picked Up</button>
+                            </form>
+                        {% endif %}
+                    {% elif booking.status == 'AC' %}
+                        <span class="muted">Rental in progress</span>
+                    {% elif booking.status == 'RE' %}
+                        <span class="muted">Rental complete</span>
                     {% endif %}
                 </div>
             </div>
