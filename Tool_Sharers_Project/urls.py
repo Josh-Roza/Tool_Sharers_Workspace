@@ -55,5 +55,9 @@ urlpatterns = [
     path("inbox/", views.inbox, name="inbox"),
     path("listing/<int:listing_id>/message/", views.send_message, name="send_message"),
     path("messages/<int:listing_id>/<int:user_id>/", views.conversation, name="conversation"),
+
+    path("support/", views.ticket_list, name="ticket_list"),
+    path("support/new/", views.create_ticket, name="create_ticket"),
+    path("support/<int:ticket_id>/", views.ticket_detail, name="ticket_detail"),
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

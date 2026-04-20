@@ -1,0 +1,21 @@
+<h2>{{ ticket.subject }}</h2>
+
+<p><strong>Status:</strong> {{ ticket.status }}</p>
+<p>{{ ticket.description }}</p>
+
+<hr>
+
+<h3>Messages</h3>
+
+{% for msg in ticket.messages.all %}
+  <p><strong>{{ msg.sender }}:</strong> {{ msg.message }}</p>
+{% endfor %}
+
+<hr>
+
+<h3>Reply</h3>
+<form method="POST">
+  {% csrf_token %}
+  {{ form.as_p }}
+  <button type="submit">Send</button>
+</form>

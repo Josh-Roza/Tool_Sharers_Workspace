@@ -3,8 +3,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from .models import User, Listing, Review, Report, Image, Transaction, Category, Booking, Message
-from .forms import User_Form, Listing_Form, Image_Form, Review_Form, Report_Form, Edit_Profile_Form, Message_Form
+from .models import User, Listing, Review, Report, Image, Transaction, Category, Booking, Message, SupportTicket, TicketMessage
+from .forms import User_Form, Listing_Form, Image_Form, Review_Form, Report_Form, Edit_Profile_Form, Message_Form, SupportTicketForm, TicketMessageForm
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.core.exceptions import ValidationError
@@ -463,3 +463,44 @@ def send_message(request, listing_id):
             return redirect('conversation', listing_id=listing.listing_id, user_id=listing.user.user_id)
 
     return redirect('view_listing', listing_id=listing.listing_id)
+
+@login_required
+def create_ticket(request):
+    if request.method == "POST":
+        form = SupportTicketForm(request.POST)
+        if form.is_valid():
+            ticket = form.save(commit=False)
+            ticket.created_by = request.user
+            ticket.save()
+            return redirect("ticket_detail", ticket.id)
+    else:
+        form = SupportTicketForm()
+
+    return render(request, "create_ticket.html", {"form": form})
+
+
+@login_required
+def ticket_list(request):
+    tickets = SupportTicket.objects.filter(created_by=request.user)
+    return render(request, "ticket_list.html", {"tickets": tickets})
+
+
+@login_required
+def ticket_detail(request, ticket_id):
+    ticket = get_object_or_404(SupportTicket, id=ticket_id)
+
+    if request.method == "POST":
+        form = TicketMessageForm(request.POST)
+        if form.is_valid():
+            msg = form.save(commit=False)
+            msg.ticket = ticket
+            msg.sender = request.user
+            msg.save()
+            return redirect("ticket_detail", ticket.id)
+    else:
+        form = TicketMessageForm()
+
+    return render(request, "ticket_detail.html", {
+        "ticket": ticket,
+        "form": form
+    })
