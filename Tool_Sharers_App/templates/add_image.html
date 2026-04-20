@@ -1,21 +1,50 @@
 {% extends 'template.html' %}
 
 {% block content %}
+
 <div class="card">
-    <h2>Upload Photo</h2>
+    <div class="section-title">
+        <div>
+            <h2>Upload Photo</h2>
+            <p class="muted">Add an image to your listing.</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
 
     {% if listing %}
-        <p>Adding image for: <strong>{{ listing.title }}</strong></p>
+        <p class="muted">
+            Adding image for: <strong>{{ listing.title }}</strong>
+        </p>
     {% endif %}
 
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Upload Photo</button>
+
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+
+            <div>
+                <label style="font-weight: bold;">Select Image</label>
+                {{ form.image }}
+                {% for error in form.image.errors %}
+                    <div style="color: #dc2626; font-size: 0.85rem;">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+                <button type="submit" class="button button-success">
+                    Upload Photo
+                </button>
+
+                <a href="{% url 'home' %}" class="button button-secondary">
+                    Back to Listings
+                </a>
+            </div>
+
+        </div>
     </form>
 
-    <hr>
-
-    <p><a href="{% url 'home' %}">Back to Listings</a></p>
 </div>
+
 {% endblock %}

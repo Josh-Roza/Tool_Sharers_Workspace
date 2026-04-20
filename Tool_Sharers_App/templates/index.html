@@ -2,16 +2,21 @@
 
 {% block content %}
 <div class="card">
-    <h2>Available Listings</h2>
-    <p class="muted">Showing everything currently on the shelf and ready to borrow.</p>
+
+    <div class="section-title">
+        <div>
+            <h2>Available Listings</h2>
+            <p class="muted">Browse tools ready to borrow near you.</p>
+        </div>
+    </div>
 
     <form method="get" style="margin-bottom: 25px;">
-        <div style="display: flex; flex-direction: column; gap: 10px;">
+        <div style="display: flex; flex-direction: column; gap: 12px;">
             
             <input
                 type="text"
                 name="q"
-                placeholder="Search by title, description"
+                placeholder="Search by title or description"
                 value="{{ selected_query }}"
                 class="form-control"
             >
@@ -33,7 +38,6 @@
                     placeholder="Min price/day"
                     value="{{ selected_min_price }}"
                     class="form-control"
-                    style="flex: 1;"
                 >
 
                 <input
@@ -44,12 +48,11 @@
                     placeholder="Max price/day"
                     value="{{ selected_max_price }}"
                     class="form-control"
-                    style="flex: 1;"
                 >
             </div>
 
             <div style="display: flex; gap: 10px;">
-                <select name="category" class="form-control" style="flex: 1;">
+                <select name="category" class="form-control">
                     <option value="">All Categories</option>
                     {% for category in categories %}
                         <option value="{{ category.id }}"
@@ -59,7 +62,7 @@
                     {% endfor %}
                 </select>
 
-                <select name="condition" class="form-control" style="flex: 1;">
+                <select name="condition" class="form-control">
                     <option value="">All Conditions</option>
                     {% for value, label in condition_choices %}
                         <option value="{{ value }}"
@@ -71,7 +74,7 @@
             </div>
 
             <div style="display: flex; gap: 10px;">
-                <select name="max_distance" class="form-control" style="flex: 1;">
+                <select name="max_distance" class="form-control">
                     <option value="">Any Distance</option>
                     {% for distance in distance_choices %}
                         <option value="{{ distance }}"
@@ -80,10 +83,8 @@
                         </option>
                     {% endfor %}
                 </select>
-            </div>
 
-            <div style="display: flex; gap: 10px;">
-                <select name="sort" class="form-control" style="flex: 1;">
+                <select name="sort" class="form-control">
                     <option value="">Newest First</option>
                     <option value="nearest" {% if selected_sort == 'nearest' %}selected{% endif %}>Nearest First</option>
                     <option value="price_low" {% if selected_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
@@ -93,48 +94,75 @@
 
             <div style="display: flex; gap: 10px;">
                 <button type="submit" class="button" style="flex: 2;">Apply Filters</button>
-                <a href="{% url 'home' %}" class="button" style="flex: 1; text-align: center; background-color: #6c757d;">Clear All</a>
+                <a href="{% url 'home' %}" class="button button-secondary" style="flex: 1; text-align: center;">Clear</a>
             </div>
         </div>
     </form>
 
-    <hr style="border: 0; border-top: 1px solid #eee; margin-bottom: 20px;">
+    <hr>
 
     {% if listings %}
-        <ul style="list-style: none; padding: 0;">
+        <div style="display: flex; flex-direction: column; gap: 16px;">
             {% for listing in listings %}
-                <li class="listing-item" style="padding: 15px 0; border-bottom: 1px solid #f9f9f9;">
-                    <strong>
-                        <a href="{% url 'view_listing' listing.listing_id %}" style="font-size: 1.1em;">
-                            {{ listing.title }} — ${{ listing.price }}/day
-                        </a>
-                    </strong>
-                    <br>
-                    <span class="muted" style="font-size: 0.9em;">
-                        Posted by 
-                        <a href="{% url 'view_profile' listing.user.user_id %}">{{ listing.user.username }}</a>
-                        in {{ listing.location }}
-                        {% if listing.distance_display %}
-                            — {{ listing.distance_display }} away
-                        {% endif %}
-                    </span>
-                    <br>
-                    <span class="muted" style="font-size: 0.85em;">
-                        <strong>{{ listing.category.name }}</strong> | {{ listing.get_condition_display }} | 
-                        <strong>Status:</strong> {{ listing.current_state }}
-                    </span>
-                </li>
+                <div class="card" style="padding: 16px; margin-bottom: 0;">
+                    
+                    <div class="section-title">
+                        <div>
+                            <a href="{% url 'view_listing' listing.listing_id %}" style="font-size: 1.15rem; font-weight: bold;">
+                                {{ listing.title }}
+                            </a>
+                            <div class="muted" style="font-size: 0.9rem;">
+                                {{ listing.location }}
+                                {% if listing.distance_display %}
+                                    — {{ listing.distance_display }} away
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div style="font-weight: bold; font-size: 1.1rem;">
+                            ${{ listing.price }}/day
+                        </div>
+                    </div>
+
+                    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                        <div class="muted" style="font-size: 0.9rem;">
+                            Posted by 
+                            <a href="{% url 'view_profile' listing.user.user_id %}">
+                                {{ listing.user.username }}
+                            </a>
+                        </div>
+
+                        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                            <span class="badge">{{ listing.category.name }}</span>
+                            <span class="badge">{{ listing.get_condition_display }}</span>
+
+                            {% if listing.current_state == "Available" %}
+                                <span class="badge badge-success">Available</span>
+                            {% elif listing.current_state == "Pending Requests" %}
+                                <span class="badge badge-warning">Pending</span>
+                            {% elif listing.current_state == "Reserved" %}
+                                <span class="badge badge-info">Reserved</span>
+                            {% elif listing.current_state == "Borrowed" %}
+                                <span class="badge badge-danger">Borrowed</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                </div>
             {% endfor %}
-        </ul>
+        </div>
     {% else %}
-        <div style="text-align: center; padding: 40px 0;">
-            <p>No gear is currently available matching those criteria.</p>
-            <a href="{% url 'home' %}" style="color: #007bff;">Reset all filters</a>
+        <div class="empty-state">
+            <p>No tools match your filters.</p>
+            <a href="{% url 'home' %}">Reset filters</a>
         </div>
     {% endif %}
 
-    <div style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px;">
-        <a class="button" href="{% url 'create_listing' %}" style="background-color: #28a745;">+ Post a New Listing</a>
+    <div style="margin-top: 25px; border-top: 1px solid #e5e7eb; padding-top: 20px;">
+        <a class="button button-success" href="{% url 'create_listing' %}">
+            + Post a New Listing
+        </a>
     </div>
+
 </div>
 {% endblock %}

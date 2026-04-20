@@ -1,13 +1,52 @@
-<h2>Your Support Tickets</h2>
+{% extends 'template.html' %}
 
-<a href="{% url 'create_ticket' %}">Create New Ticket</a>
+{% block content %}
 
-<ul>
-  {% for ticket in tickets %}
-    <li>
-      <a href="{% url 'ticket_detail' ticket.id %}">
-        {{ ticket.subject }} - {{ ticket.status }}
-      </a>
-    </li>
-  {% endfor %}
-</ul>
+<div class="card">
+    <div class="section-title">
+        <div>
+            <h2>Your Support Tickets</h2>
+            <p class="muted">View your open and past support requests.</p>
+        </div>
+        <a href="{% url 'create_ticket' %}" class="button button-success">Create New Ticket</a>
+    </div>
+</div>
+
+<div class="card">
+    {% if tickets %}
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            {% for ticket in tickets %}
+                <div class="card" style="padding: 16px; margin-bottom: 0;">
+                    <div class="section-title">
+                        <div>
+                            <a href="{% url 'ticket_detail' ticket.id %}" style="font-size: 1.05rem; font-weight: bold;">
+                                {{ ticket.subject }}
+                            </a>
+                        </div>
+
+                        <div>
+                            {% if ticket.status == "open" %}
+                                <span class="badge badge-warning">Open</span>
+                            {% elif ticket.status == "in_progress" %}
+                                <span class="badge badge-info">In Progress</span>
+                            {% elif ticket.status == "resolved" %}
+                                <span class="badge badge-success">Resolved</span>
+                            {% elif ticket.status == "closed" %}
+                                <span class="badge">Closed</span>
+                            {% else %}
+                                <span class="badge">{{ ticket.status }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            <p>You haven’t created any support tickets yet.</p>
+            <a href="{% url 'create_ticket' %}" class="button button-success">Create Your First Ticket</a>
+        </div>
+    {% endif %}
+</div>
+
+{% endblock %}

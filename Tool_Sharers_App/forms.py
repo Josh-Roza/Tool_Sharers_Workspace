@@ -12,10 +12,10 @@ class User_Form(forms.ModelForm):
         model = User
         fields = ['username', 'password', 'email', 'phone_number']
         widgets = {
-            'username': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Username'}),
-            'email': forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Email'}),
-            'password': forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Password'}),
-            'phone_number': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Phone Number'}),
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'password': forms.PasswordInput(attrs={'class': 'form-control'}),
+            'phone_number': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
 class Edit_Profile_Form(forms.ModelForm):
@@ -98,9 +98,20 @@ class SupportTicketForm(forms.ModelForm):
     class Meta:
         model = SupportTicket
         fields = ["subject", "description", "category"]
-
+        widgets = {
+            "subject": forms.TextInput(attrs={"class": "form-control"}),
+            "description": forms.Textarea(attrs={"class": "form-control", "rows": 4}),
+            "category": forms.Select(attrs={"class": "form-control"}),
+        }
 
 class TicketMessageForm(forms.ModelForm):
     class Meta:
         model = TicketMessage
         fields = ["message"]
+        widgets = {
+            "message": forms.Textarea(attrs={
+                "class": "form-control",
+                "rows": 4,
+                "placeholder": "Type your reply..."
+            }),
+        }

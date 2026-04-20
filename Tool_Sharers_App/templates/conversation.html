@@ -1,39 +1,67 @@
 {% extends 'template.html' %}
 
 {% block content %}
+
 <div class="card">
-    <h2>Conversation about "{{ listing.title }}"</h2>
-    <p class="muted">
-        Between you and <a href="{% url 'view_profile' other_user.user_id %}">{{ other_user.username }}</a>
-    </p>
+    <div class="section-title">
+        <div>
+            <h2>Conversation about "{{ listing.title }}"</h2>
+            <p class="muted">
+                Between you and
+                <a href="{% url 'view_profile' other_user.user_id %}">{{ other_user.username }}</a>
+            </p>
+        </div>
+
+        <a href="{% url 'inbox' %}" class="button button-secondary">Back to Inbox</a>
+    </div>
 </div>
 
 <div class="card">
     {% if messages %}
-        {% for message in messages %}
-            <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
-                <strong>
-                    {% if message.sender == user %}
-                        You
-                    {% else %}
-                        {{ message.sender.username }}
-                    {% endif %}
-                </strong>
-                <span class="muted" style="font-size: 0.85em;"> — {{ message.timestamp }}</span>
-                <p style="margin-top: 6px;">{{ message.content }}</p>
-            </div>
-        {% endfor %}
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            {% for message in messages %}
+                {% if message.sender == user %}
+                    <div class="card" style="padding: 16px; margin-bottom: 0; background-color: #eef6ff; border: 1px solid #bfdbfe;">
+                {% else %}
+                    <div class="card" style="padding: 16px; margin-bottom: 0; background-color: #f9fafb; border: 1px solid #e5e7eb;">
+                {% endif %}
+
+                        <div class="section-title" style="margin-bottom: 8px;">
+                            <strong>
+                                {% if message.sender == user %}
+                                    You
+                                {% else %}
+                                    {{ message.sender.username }}
+                                {% endif %}
+                            </strong>
+
+                            <span class="muted" style="font-size: 0.85em;">
+                                {{ message.timestamp|date:"M d, Y H:i" }}
+                            </span>
+                        </div>
+
+                        <p style="margin: 0;">{{ message.content }}</p>
+                    </div>
+            {% endfor %}
+        </div>
     {% else %}
-        <p>No messages yet.</p>
+        <div class="empty-state">
+            <p>No messages yet.</p>
+        </div>
     {% endif %}
 </div>
 
 <div class="card">
     <h3>Reply</h3>
+
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="button">Send Reply</button>
+
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            {{ form.content }}
+            <button type="submit" class="button">Send Reply</button>
+        </div>
     </form>
 </div>
+
 {% endblock %}

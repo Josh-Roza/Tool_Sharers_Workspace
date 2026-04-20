@@ -1,17 +1,42 @@
 {% extends 'template.html' %}
 
 {% block content %}
-<div class="card">
-    <h2>Delete Account</h2>
-    <p>Are you sure you want to delete your account? This cannot be undone.</p>
 
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="button-danger">Yes, Delete My Account</button>
-    </form>
+<div class="card" style="border: 1px solid #fecaca; background-color: #fff7f7;">
+    <div class="section-title">
+        <div>
+            <h2 style="color: #b91c1c;">Delete Account</h2>
+            <p class="muted">
+                This action is permanent and cannot be undone.
+            </p>
+        </div>
+    </div>
 
     <hr>
 
-    <p><a href="{% url 'my_profile' %}">Cancel</a></p>
+    <p>
+        Are you sure you want to delete your account? This will remove:
+    </p>
+
+    <ul class="muted">
+        <li>Your profile and account information</li>
+        <li>Your listings</li>
+        <li>Your bookings and messages</li>
+    </ul>
+
+    <form method="post" style="margin-top: 20px;">
+        {% csrf_token %}
+
+        <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="submit" class="button button-danger">
+                Yes, Delete My Account
+            </button>
+
+            <a href="{% url 'my_profile' %}" class="button button-secondary">
+                Cancel
+            </a>
+        </div>
+    </form>
 </div>
+
 {% endblock %}

@@ -1,17 +1,24 @@
 {% extends 'template.html' %}
 
 {% block content %}
+
 <div class="card">
-    <h1>Manage Your Bookings</h1>
+    <div class="section-title">
+        <h1>Manage Your Bookings</h1>
+    </div>
     <p class="muted">Track your requests and manage incoming rentals.</p>
 </div>
 
+<!-- ===================== -->
+<!-- Incoming Requests -->
+<!-- ===================== -->
 <div class="card">
     <h2>Incoming Requests (Lending)</h2>
+
     {% if incoming_requests %}
-        <table style="width: 100%; border-collapse: collapse;">
+        <table>
             <thead>
-                <tr style="border-bottom: 2px solid #eee; text-align: left;">
+                <tr>
                     <th>Tool</th>
                     <th>Borrower</th>
                     <th>Dates</th>
@@ -19,139 +26,196 @@
                     <th>Actions</th>
                 </tr>
             </thead>
+
             <tbody>
                 {% for booking in incoming_requests %}
-                <tr style="border-bottom: 1px solid #eee;">
+                <tr>
                     <td><strong>{{ booking.listing.title }}</strong></td>
+
                     <td>
                         <a href="{% url 'view_profile' booking.borrower.user_id %}?listing_id={{ booking.listing.listing_id }}">
                             {{ booking.borrower.username }}
                         </a>
                     </td>
-                    <td>{{ booking.start_date }} to {{ booking.end_date }}</td>
-                    <td><span class="badge">{{ booking.get_status_display }}</span></td>
+
+                    <td>{{ booking.start_date }} → {{ booking.end_date }}</td>
+
+                    <td>
+                        {% if booking.status == 'PE' %}
+                            <span class="badge badge-warning">Pending</span>
+                        {% elif booking.status == 'AP' %}
+                            <span class="badge badge-info">Approved</span>
+                        {% elif booking.status == 'AC' %}
+                            <span class="badge badge-success">Active</span>
+                        {% elif booking.status == 'RE' %}
+                            <span class="badge">Completed</span>
+                        {% endif %}
+                    </td>
+
                     <td>
                         {% if booking.status == 'PE' %}
                             <form action="{% url 'approve_booking' booking.id %}" method="post" style="display:inline;">
                                 {% csrf_token %}
-                                <button type="submit" class="button btn-small" style="background-color: #28a745;">Approve</button>
+                                <button type="submit" class="button button-success">Approve</button>
                             </form>
+
                             <form action="{% url 'action_booking' booking.id 'decline' %}" method="post" style="display:inline;">
                                 {% csrf_token %}
-                                <button type="submit" class="button btn-small" style="background-color: #dc3545;">Decline</button>
+                                <button type="submit" class="button button-danger">Decline</button>
                             </form>
-                            
+
                         {% elif booking.status == 'AP' or booking.status == 'AC' %}
 
                             {% if booking.status == 'AP' %}
                                 {% if not booking.payment_record.payment_sent %}
                                     <span class="muted">Waiting for renter to send payment</span>
+
                                 {% elif not booking.payment_record.payment_confirmed %}
                                     <form action="{% url 'confirm_payment' booking.id %}" method="post" style="display:inline;">
                                         {% csrf_token %}
-                                        <button type="submit" class="button btn-small" style="background-color: #ffc107; color: black;">Confirm Payment</button>
+                                        <button type="submit" class="button button-warning">Confirm Payment</button>
                                     </form>
+
                                 {% else %}
-                                    <span class="badge" style="background-color: #17a2b8; color: white; padding: 5px 10px; border-radius: 4px;">Paid ✓</span>
+                                    <span class="badge badge-success">Paid ✓</span>
                                 {% endif %}
                             {% endif %}
 
                             {% if booking.status == 'AC' %}
-                                <span class="badge" style="background-color: #17a2b8; color: white; padding: 5px 10px; border-radius: 4px;">Paid ✓</span>
+                                <span class="badge badge-success">Paid ✓</span>
+
                                 <form action="{% url 'action_booking' booking.id 'return' %}" method="post" style="display:inline;">
                                     {% csrf_token %}
-                                    <button type="submit" class="button btn-small" style="background-color: #007bff;">Mark Returned</button>
+                                    <button type="submit" class="button">Mark Returned</button>
                                 </form>
                             {% endif %}
-                            
+
                         {% else %}
-                            <span class="muted">No actions available</span>
+                            <span class="muted">No actions</span>
                         {% endif %}
                     </td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
+
     {% else %}
-        <p>No one is currently requesting your gear.</p>
+        <div class="empty-state">
+            <p>No one is currently requesting your gear.</p>
+        </div>
     {% endif %}
 </div>
 
+<!-- ===================== -->
+<!-- My Rentals -->
+<!-- ===================== -->
 <div class="card">
     <h2>My Rentals (Borrowing)</h2>
-    {% if my_rentals %}
-        {% for booking in my_rentals %}
-            <div style="border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px;">
-                <div style="display: flex; justify-content: space-between;">
-                    <h3>{{ booking.listing.title }}</h3>
-                    <strong>Status: {{ booking.get_status_display }}</strong>
-                </div>
-                <p>
-                    Owner:
-                    <strong>
-                        <a href="{% url 'view_profile' booking.listing.user.user_id %}?listing_id={{ booking.listing.listing_id }}">
-                            {{ booking.listing.user.username }}
-                        </a>
-                    </strong>
-                </p>
-                <p>Dates: {{ booking.start_date }} to {{ booking.end_date }}</p>
-                <p>Total Cost: ${{ booking.total_cost }}</p>
 
-                {% if booking.status == 'AP' or booking.status == 'AC' %}
-                    <div style="background-color: #eef9ff; padding: 15px; border-left: 5px solid #007bff; margin-top: 10px;">
-                        {% if booking.payment_record.payment_confirmed %}
-                            <strong style="color: #28a745;">Payment Confirmed ✓</strong>
-                        {% else %}
-                            <strong>Payment Instructions:</strong><br>
-                            
-                            {% with lender=booking.listing.user %}
-                                {% if lender.preferred_payment == 'VE' and lender.venmo_handle %}
-                                    <p>Please pay via <strong>Venmo (Preferred)</strong>: @{{ lender.venmo_handle }}</p>
-                                {% elif lender.preferred_payment == 'PP' and lender.paypal_email %}
-                                    <p>Please pay via <strong>PayPal (Preferred)</strong>: {{ lender.paypal_email }}</p>
-                                {% else %}
-                                    {% if lender.venmo_handle %}Venmo: @{{ lender.venmo_handle }}<br>{% endif %}
-                                    {% if lender.paypal_email %}PayPal: {{ lender.paypal_email }}{% endif %}
-                                    {% if not lender.venmo_handle and not lender.paypal_email %}
-                                        <em>Contact owner for payment details.</em>
-                                    {% endif %}
-                                {% endif %}
-                            {% endwith %}
+    {% if my_rentals %}
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+            {% for booking in my_rentals %}
+                <div class="card" style="padding: 18px; margin-bottom: 0;">
+
+                    <div class="section-title">
+                        <h3>{{ booking.listing.title }}</h3>
+
+                        {% if booking.status == 'PE' %}
+                            <span class="badge badge-warning">Pending</span>
+                        {% elif booking.status == 'AP' %}
+                            <span class="badge badge-info">Approved</span>
+                        {% elif booking.status == 'AC' %}
+                            <span class="badge badge-success">Active</span>
+                        {% elif booking.status == 'RE' %}
+                            <span class="badge">Completed</span>
                         {% endif %}
                     </div>
-                {% endif %}
-                <div style="margin-top: 10px;">
-                    {% if booking.status == 'PE' or booking.status == 'AP' %}
-                        <form action="{% url 'action_booking' booking.id 'cancel' %}" method="post" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="button btn-small" style="background-color: #6c757d;">Cancel Request</button>
-                        </form>
+
+                    <p>
+                        Owner:
+                        <strong>
+                            <a href="{% url 'view_profile' booking.listing.user.user_id %}?listing_id={{ booking.listing.listing_id }}">
+                                {{ booking.listing.user.username }}
+                            </a>
+                        </strong>
+                    </p>
+
+                    <p class="muted">
+                        {{ booking.start_date }} → {{ booking.end_date }}
+                    </p>
+
+                    <p><strong>Total:</strong> ${{ booking.total_cost }}</p>
+
+                    {% if booking.status == 'AP' or booking.status == 'AC' %}
+                        <div class="card" style="background-color: #f8fafc; border-left: 4px solid #2563eb; padding: 15px;">
+                            
+                            {% if booking.payment_record.payment_confirmed %}
+                                <span class="badge badge-success">Payment Confirmed ✓</span>
+
+                            {% else %}
+                                <strong>Payment Instructions:</strong><br>
+
+                                {% with lender=booking.listing.user %}
+                                    {% if lender.preferred_payment == 'VE' and lender.venmo_handle %}
+                                        Venmo (Preferred): @{{ lender.venmo_handle }}
+
+                                    {% elif lender.preferred_payment == 'PP' and lender.paypal_email %}
+                                        PayPal (Preferred): {{ lender.paypal_email }}
+
+                                    {% else %}
+                                        {% if lender.venmo_handle %}Venmo: @{{ lender.venmo_handle }}<br>{% endif %}
+                                        {% if lender.paypal_email %}PayPal: {{ lender.paypal_email }}{% endif %}
+                                        {% if not lender.venmo_handle and not lender.paypal_email %}
+                                            <span class="muted">Contact owner for payment details.</span>
+                                        {% endif %}
+                                    {% endif %}
+                                {% endwith %}
+                            {% endif %}
+                        </div>
                     {% endif %}
-                    
-                    {% if booking.status == 'AP' %}
-                        {% if not booking.payment_record.payment_sent %}
-                            <form action="{% url 'mark_payment_sent' booking.id %}" method="post" style="display:inline;">
+
+                    <div style="margin-top: 10px; display: flex; gap: 8px; flex-wrap: wrap;">
+                        
+                        {% if booking.status == 'PE' or booking.status == 'AP' %}
+                            <form action="{% url 'action_booking' booking.id 'cancel' %}" method="post">
                                 {% csrf_token %}
-                                <button type="submit" class="button btn-small" style="background-color: #17a2b8;">I Sent Payment</button>
-                            </form>
-                        {% elif not booking.payment_record.payment_confirmed %}
-                            <span class="muted">Waiting for owner to confirm payment</span>
-                        {% else %}
-                            <form action="{% url 'action_booking' booking.id 'pickup' %}" method="post" style="display:inline;">
-                                {% csrf_token %}
-                                <button type="submit" class="button btn-small" style="background-color: #28a745;">Mark as Picked Up</button>
+                                <button type="submit" class="button button-secondary">Cancel</button>
                             </form>
                         {% endif %}
-                    {% elif booking.status == 'AC' %}
-                        <span class="muted">Rental in progress</span>
-                    {% elif booking.status == 'RE' %}
-                        <span class="muted">Rental complete</span>
-                    {% endif %}
+
+                        {% if booking.status == 'AP' %}
+                            {% if not booking.payment_record.payment_sent %}
+                                <form action="{% url 'mark_payment_sent' booking.id %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="button">I Sent Payment</button>
+                                </form>
+
+                            {% elif not booking.payment_record.payment_confirmed %}
+                                <span class="muted">Waiting for owner confirmation</span>
+
+                            {% else %}
+                                <form action="{% url 'action_booking' booking.id 'pickup' %}" method="post">
+                                    {% csrf_token %}
+                                    <button type="submit" class="button button-success">Mark Picked Up</button>
+                                </form>
+                            {% endif %}
+                        {% elif booking.status == 'AC' %}
+                            <span class="muted">Rental in progress</span>
+                        {% elif booking.status == 'RE' %}
+                            <span class="muted">Rental complete</span>
+                        {% endif %}
+
+                    </div>
                 </div>
-            </div>
-        {% endfor %}
+            {% endfor %}
+        </div>
+
     {% else %}
-        <p>You haven't requested any tools yet. <a href="{% url 'home' %}">Take a look.</a></p>
+        <div class="empty-state">
+            <p>You haven't requested any tools yet.</p>
+            <a href="{% url 'home' %}">Browse listings</a>
+        </div>
     {% endif %}
 </div>
+
 {% endblock %}

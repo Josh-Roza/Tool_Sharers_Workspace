@@ -8,6 +8,7 @@ from .forms import User_Form, Listing_Form, Image_Form, Review_Form, Report_Form
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from django.contrib.auth.views import LoginView
 
 from .geocoding import geocode_address, haversine_miles
 
@@ -164,12 +165,16 @@ def edit_listing(request, listing_id):
 
 def view_listing(request, listing_id):
     listing = get_object_or_404(Listing, pk=listing_id)
-    
     images = listing.image_set.all()
-    
+
+    reserved_bookings = listing.bookings.filter(
+        status__in=[Booking.Status.APPROVED, Booking.Status.ACTIVE]
+    ).order_by('start_date')
+
     return render(request, 'listing_detail.html', {
         'listing': listing,
-        'images': images
+        'images': images,
+        'reserved_bookings': reserved_bookings,
     })
 
 @login_required
@@ -380,8 +385,15 @@ def request_booking(request, listing_id):
             booking.save()
             return redirect('manage_bookings')
         except ValidationError as e:
+            images = listing.image_set.all()
+            reserved_bookings = listing.bookings.filter(
+                status__in=[Booking.Status.APPROVED, Booking.Status.ACTIVE]
+            ).order_by('start_date')
+
             return render(request, 'listing_detail.html', {
                 'listing': listing,
+                'images': images,
+                'reserved_bookings': reserved_bookings,
                 'error': e.message_dict if hasattr(e, 'message_dict') else e.messages
             })
     return redirect('view_listing', listing_id=listing_id)
@@ -599,3 +611,14 @@ def ticket_detail(request, ticket_id):
         "ticket": ticket,
         "form": form
     })
+
+class CustomLoginView(LoginView):
+    template_name = 'login.html'
+
+    def get_form(self, form_class=None):
+        form = super().get_form(form_class)
+
+        for field in form.fields.values():
+            field.widget.attrs.update({'class': 'form-control'})
+
+        return form

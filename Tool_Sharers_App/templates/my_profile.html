@@ -1,45 +1,70 @@
 {% extends 'template.html' %}
 
 {% block content %}
+
 <div class="card">
-    <h2>My Profile</h2>
-
-    <p><strong>Username:</strong> {{ profile_user.username }}</p>
-    <p><strong>Email:</strong> {{ profile_user.email }}</p>
-    <p><strong>Phone Number:</strong> {{ profile_user.phone_number }}</p>
-    <p><strong>Reputation:</strong> {{ profile_user.reputation }}</p>
-    <p>
-        <strong>Verified:</strong>
-        {% if profile_user.verified %}
-            Yes
-        {% else %}
-            No
-        {% endif %}
-    </p>
-
-    <p>
+    <div class="section-title">
+        <div>
+            <h2>My Profile</h2>
+            <p class="muted">Manage your account details and review history.</p>
+        </div>
         <a class="button" href="{% url 'edit_profile' %}">Edit Profile</a>
-    </p>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Account Information</h3>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 15px;">
+        <div class="card" style="padding: 16px; margin-bottom: 0;">
+            <p class="muted" style="margin-bottom: 6px;">Username</p>
+            <strong>{{ profile_user.username }}</strong>
+        </div>
+
+        <div class="card" style="padding: 16px; margin-bottom: 0;">
+            <p class="muted" style="margin-bottom: 6px;">Email</p>
+            <strong>{{ profile_user.email }}</strong>
+        </div>
+
+        <div class="card" style="padding: 16px; margin-bottom: 0;">
+            <p class="muted" style="margin-bottom: 6px;">Phone Number</p>
+            <strong>{{ profile_user.phone_number|default:"Not provided" }}</strong>
+        </div>
+
+        <div class="card" style="padding: 16px; margin-bottom: 0;">
+            <p class="muted" style="margin-bottom: 6px;">Reputation</p>
+            <strong>{{ profile_user.reputation }}</strong>
+        </div>
+    </div>
 </div>
 
 <div class="card">
     <h3>Reviews</h3>
 
     {% if reviews %}
-        {% for review in reviews %}
-            <div>
-                <p><strong>Rating:</strong> {{ review.rating }}/5</p>
-                <p><strong>Comment:</strong> {{ review.comment }}</p>
-                <p><strong>Buyer:</strong> {{ review.buyer.username }}</p>
-                <hr>
-            </div>
-        {% endfor %}
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 14px;">
+            {% for review in reviews %}
+                <div class="card" style="padding: 16px; margin-bottom: 0;">
+                    <div class="section-title">
+                        <strong>Rating: {{ review.rating }}/5</strong>
+                        <span class="muted">From {{ review.borrower.username }}</span>
+                    </div>
+
+                    <p style="margin-top: 10px;">{{ review.comment }}</p>
+                </div>
+            {% endfor %}
+        </div>
     {% else %}
-        <p>No reviews yet.</p>
+        <div class="empty-state">
+            <p>No reviews yet.</p>
+        </div>
     {% endif %}
 </div>
 
-<div class="card">
+<div class="card" style="border: 1px solid #fecaca; background-color: #fff7f7;">
+    <h3 style="color: #b91c1c;">Danger Zone</h3>
+    <p class="muted">Deleting your account is permanent and cannot be undone.</p>
     <a class="button button-danger" href="{% url 'delete_user' %}">Delete My Account</a>
 </div>
+
 {% endblock %}

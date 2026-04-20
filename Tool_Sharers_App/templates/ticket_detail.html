@@ -1,21 +1,80 @@
-<h2>{{ ticket.subject }}</h2>
+{% extends 'template.html' %}
 
-<p><strong>Status:</strong> {{ ticket.status }}</p>
-<p>{{ ticket.description }}</p>
+{% block content %}
 
-<hr>
+<div class="card">
+    <div class="section-title">
+        <div>
+            <h2>{{ ticket.subject }}</h2>
+            <p class="muted">Support Ticket</p>
+        </div>
 
-<h3>Messages</h3>
+        <div>
+            {% if ticket.status == "open" %}
+                <span class="badge badge-warning">Open</span>
+            {% elif ticket.status == "closed" %}
+                <span class="badge">Closed</span>
+            {% elif ticket.status == "in_progress" %}
+                <span class="badge badge-info">In Progress</span>
+            {% elif ticket.status == "resolved" %}
+                <span class="badge badge-success">Resolved</span>
+            {% else %}
+                <span class="badge">{{ ticket.status }}</span>
+            {% endif %}
+        </div>
+    </div>
 
-{% for msg in ticket.messages.all %}
-  <p><strong>{{ msg.sender }}:</strong> {{ msg.message }}</p>
-{% endfor %}
+    <hr>
 
-<hr>
+    <p>{{ ticket.description }}</p>
+</div>
 
-<h3>Reply</h3>
-<form method="POST">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Send</button>
-</form>
+<div class="card">
+    <h3>Conversation</h3>
+
+    {% for msg in ticket.messages.all %}
+        {% if msg.sender == user %}
+            <div class="card" style="padding: 16px; margin-top: 12px; background-color: #eef6ff; border: 1px solid #bfdbfe;">
+        {% else %}
+            <div class="card" style="padding: 16px; margin-top: 12px; background-color: #f9fafb; border: 1px solid #e5e7eb;">
+        {% endif %}
+
+                <div class="section-title" style="margin-bottom: 8px;">
+                    <strong>{{ msg.sender.username }}</strong>
+                    <span class="muted" style="font-size: 0.85em;">
+                        {{ msg.created_at|date:"M d, Y H:i" }}
+                    </span>
+                </div>
+
+                <p style="margin: 0;">{{ msg.message }}</p>
+            </div>
+    {% empty %}
+        <div class="empty-state">
+            <p>No messages yet.</p>
+        </div>
+    {% endfor %}
+</div>
+
+<div class="card">
+    <h3>Reply</h3>
+
+    <form method="POST">
+        {% csrf_token %}
+
+        <div style="display: flex; flex-direction: column; gap: 12px;">
+            {{ form.message }}
+
+            <button type="submit" class="button">
+                Send Reply
+            </button>
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <a href="{% url 'ticket_list' %}" class="button button-secondary">
+        Back to Tickets
+    </a>
+</div>
+
+{% endblock %}

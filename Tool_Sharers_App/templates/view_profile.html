@@ -1,34 +1,61 @@
 {% extends 'template.html' %}
 
 {% block content %}
-<div class="card">
-    <h2>{{ profile_user.username }}'s Profile</h2>
 
-    <p><strong>Username:</strong> {{ profile_user.username }}</p>
-    <p><strong>Reputation:</strong> {{ profile_user.reputation }}</p>
-    <p>
-        <strong>Verified:</strong>
-        {% if profile_user.verified %}
-            Yes
-        {% else %}
-            No
-        {% endif %}
-    </p>
+<div class="card">
+    <div class="section-title">
+        <div>
+            <h2>{{ profile_user.username }}'s Profile</h2>
+            <p class="muted">View public profile details, reviews, and available actions.</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <h3>Profile Details</h3>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 15px;">
+        <div class="card" style="padding: 16px; margin-bottom: 0;">
+            <p class="muted" style="margin-bottom: 6px;">Username</p>
+            <strong>{{ profile_user.username }}</strong>
+        </div>
+
+        <div class="card" style="padding: 16px; margin-bottom: 0;">
+            <p class="muted" style="margin-bottom: 6px;">Reputation</p>
+            <strong>{{ profile_user.reputation }}</strong>
+        </div>
+
+        <div class="card" style="padding: 16px; margin-bottom: 0;">
+            <p class="muted" style="margin-bottom: 6px;">Verified</p>
+            {% if profile_user.verified %}
+                <span class="badge badge-success">Verified</span>
+            {% else %}
+                <span class="badge badge-warning">Not Verified</span>
+            {% endif %}
+        </div>
+    </div>
 
     {% if user.is_authenticated and user != profile_user %}
-        <p>
-            <a class="button button-danger" href="{% url 'create_report' profile_user.user_id %}">Report User</a>
-            <a class="button" href="{% url 'create_review' %}?seller_id={{ profile_user.user_id }}">Write a Review</a>
+        <div style="margin-top: 18px; display: flex; gap: 8px; flex-wrap: wrap;">
+            <a class="button button-danger" href="{% url 'create_report' profile_user.user_id %}">
+                Report User
+            </a>
+
+            <a class="button" href="{% url 'create_review' %}?seller_id={{ profile_user.user_id }}">
+                Write a Review
+            </a>
 
             {% if context_listing %}
-                <a class="button" href="{% url 'start_profile_message' profile_user.user_id context_listing.listing_id %}">
-                    Message User About "{{ context_listing.title }}"
+                <a class="button button-secondary" href="{% url 'start_profile_message' profile_user.user_id context_listing.listing_id %}">
+                    Message About "{{ context_listing.title }}"
                 </a>
             {% endif %}
-        </p>
+        </div>
 
         {% if not context_listing %}
-            <p class="muted">Open this profile from a booking or listing to message them about a specific tool.</p>
+            <p class="muted" style="margin-top: 12px;">
+                Open this profile from a booking or listing to message them about a specific tool.
+            </p>
         {% endif %}
     {% endif %}
 </div>
@@ -37,27 +64,38 @@
     <h3>Reviews</h3>
 
     {% if reviews %}
-        {% for review in reviews %}
-            <div>
-                <p><strong>Rating:</strong> {{ review.rating }}/5</p>
-                <p><strong>Comment:</strong> {{ review.comment }}</p>
-                <p><strong>Buyer:</strong> {{ review.buyer.username }}</p>
+        <div style="display: flex; flex-direction: column; gap: 12px; margin-top: 14px;">
+            {% for review in reviews %}
+                <div class="card" style="padding: 16px; margin-bottom: 0;">
+                    <div class="section-title">
+                        <strong>Rating: {{ review.rating }}/5</strong>
+                        <span class="muted">From {{ review.borrower.username }}</span>
+                    </div>
 
-                {% if user.is_authenticated and review.buyer == user %}
-                    <p>
-                        <a class="button" href="{% url 'edit_review' review.review_id %}">Edit</a>
-                    </p>
+                    <p style="margin-top: 10px;">{{ review.comment }}</p>
 
-                    <form action="{% url 'delete_review' review.review_id %}" method="post" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="button-danger">Delete</button>
-                    </form>
-                {% endif %}
-                <hr>
-            </div>
-        {% endfor %}
+                    {% if user.is_authenticated and review.borrower == user %}
+                        <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+                            <a class="button button-secondary" href="{% url 'edit_review' review.review_id %}">
+                                Edit
+                            </a>
+
+                            <form action="{% url 'delete_review' review.review_id %}" method="post" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="button button-danger">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
     {% else %}
-        <p>No reviews yet.</p>
+        <div class="empty-state">
+            <p>No reviews yet.</p>
+        </div>
     {% endif %}
 </div>
+
 {% endblock %}

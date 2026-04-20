@@ -1,19 +1,44 @@
 {% extends 'template.html' %}
 
 {% block content %}
-<div class="card">
-    <h2>Report {{ reported_user.username }}</h2>
 
-    <p class="muted">Please explain why you are reporting this user.</p>
-
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Submit Report</button>
-    </form>
+<div class="card" style="border: 1px solid #fde68a; background-color: #fffbeb;">
+    <div class="section-title">
+        <div>
+            <h2 style="color: #b45309;">Report {{ reported_user.username }}</h2>
+            <p class="muted">
+                Use this form to report inappropriate behavior or issues with this user.
+            </p>
+        </div>
+    </div>
 
     <hr>
 
-    <p><a href="{% url 'view_profile' reported_user.user_id %}">Cancel</a></p>
+    <form method="post">
+        {% csrf_token %}
+
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+
+            <div>
+                <label style="font-weight: bold;">Reason for Report</label>
+                {{ form.reason }}
+                {% for error in form.reason.errors %}
+                    <div style="color: #dc2626; font-size: 0.85rem;">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+                <button type="submit" class="button button-warning">
+                    Submit Report
+                </button>
+
+                <a href="{% url 'view_profile' reported_user.user_id %}" class="button button-secondary">
+                    Cancel
+                </a>
+            </div>
+
+        </div>
+    </form>
 </div>
+
 {% endblock %}

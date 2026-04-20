@@ -1,66 +1,128 @@
 {% extends 'template.html' %}
 
 {% block content %}
+
 <div class="card">
-    <h1>{{ listing.title }}</h1>
+    <div class="section-title">
+        <div>
+            <h1>{{ listing.title }}</h1>
+            <p class="muted" style="margin-top: 6px;">
+                Posted by
+                <a href="{% url 'view_profile' listing.user.user_id %}">
+                    {{ listing.user.username }}
+                </a>
+            </p>
+        </div>
 
-    <p>
-        <strong>Posted by:</strong>
-        <a href="{% url 'view_profile' listing.user.user_id %}">
-            {{ listing.user.username }}
-        </a>
-    </p>
+        <div style="text-align: right;">
+            <div style="font-size: 1.3rem; font-weight: bold;">${{ listing.price }}/day</div>
 
-    <p><strong>Price:</strong> ${{ listing.price }}</p>
-    <p><strong>Status:</strong> {{ listing.current_state }}</p>
+            {% if listing.current_state == "Available" %}
+                <span class="badge badge-success">Available</span>
+            {% elif listing.current_state == "Pending Requests" %}
+                <span class="badge badge-warning">Pending Requests</span>
+            {% elif listing.current_state == "Reserved" %}
+                <span class="badge badge-info">Reserved</span>
+            {% elif listing.current_state == "Borrowed" %}
+                <span class="badge badge-danger">Borrowed</span>
+            {% endif %}
+        </div>
+    </div>
+
+    <hr>
+
     <p><strong>Category:</strong> {{ listing.category }}</p>
     <p><strong>Description:</strong> {{ listing.description }}</p>
 </div>
 
 <div class="card">
-    <h3>Rent this Tool</h3>
+    <h3>Request This Tool</h3>
+
     {% if user.is_authenticated %}
         {% if user == listing.user %}
-            <p class="muted"<em>This is your listing. You can manage incoming requests in your dashboard.</em></p>
+            <p class="muted"><em>This is your listing. You can manage incoming requests in your dashboard.</em></p>
         {% else %}
             <form action="{% url 'request_booking' listing.listing_id %}" method="post">
                 {% csrf_token %}
 
-{% if error %}
-                    <div style="background-color: #ffe6e6; color: #cc0000; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
-                        <strong>Wait:</strong> {{ error }}
+                {% if error %}
+                    <div class="card" style="background-color: #fef2f2; border: 1px solid #fecaca; padding: 14px; margin-bottom: 15px;">
+                        <strong style="color: #b91c1c;">Booking Error:</strong>
+                        <span style="color: #991b1b;">{{ error }}</span>
                     </div>
                 {% endif %}
 
-                <div style="margin-bottom: 10px;">
-                    <label style="display: block; font-size: 0.9em;">Pick-up Date:</label>
-                    <input type="date" name="start_date" required class="form-control">
+                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 220px;">
+                        <label style="display: block; margin-bottom: 6px; font-size: 0.9em; font-weight: bold;">Pick-up Date</label>
+                        <input type="date" name="start_date" required class="form-control">
+                    </div>
+
+                    <div style="flex: 1; min-width: 220px;">
+                        <label style="display: block; margin-bottom: 6px; font-size: 0.9em; font-weight: bold;">Return Date</label>
+                        <input type="date" name="end_date" required class="form-control">
+                    </div>
                 </div>
 
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; font-size: 0.9em;">Return Date:</label>
-                    <input type="date" name="end_date" required class="form-control">
-                </div>
+                <button type="submit" class="button button-success" style="width: 100%; margin-top: 15px;">
+                    Request to Borrow
+                </button>
 
-                <button type="submit" class="button" style="width: 100%;">Request to Borrow</button>
-                <p class="muted" style="font-size: 0.8em; margin-top: 10px;">
-                    Note: The owner will need to approve your request before payment info is shown.
+                <p class="muted" style="font-size: 0.85em; margin-top: 10px;">
+                    The owner must approve your request before payment details and pickup actions become available.
                 </p>
             </form>
         {% endif %}
     {% else %}
-        <p><a href="{% url 'login' %}">Log in</a> to check availability and request this tool.</p>
+        <p><a href="{% url 'login' %}">Log in</a> to request this tool.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h3>Reserved Dates</h3>
+
+    {% if reserved_bookings %}
+        <div style="display: flex; flex-direction: column; gap: 10px;">
+            {% for booking in reserved_bookings %}
+                <div style="padding: 12px 14px; border: 1px solid #e5e7eb; border-radius: 10px; background-color: #f9fafb;">
+                    <strong>{{ booking.start_date }} → {{ booking.end_date }}</strong>
+                    <div style="margin-top: 6px;">
+                        {% if booking.status == 'AP' %}
+                            <span class="badge badge-info">Reserved</span>
+                        {% elif booking.status == 'AC' %}
+                            <span class="badge badge-danger">Currently Borrowed</span>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
+        <p class="muted" style="margin-top: 12px; font-size: 0.9em;">
+            These dates are unavailable for new bookings.
+        </p>
+    {% else %}
+        <p class="muted">No reserved dates right now.</p>
     {% endif %}
 </div>
 
 <div class="card">
     <h3>Message the Owner</h3>
+
     {% if user.is_authenticated %}
         {% if user != listing.user %}
             <form action="{% url 'send_message' listing.listing_id %}" method="post">
                 {% csrf_token %}
-                <textarea name="content" class="form-control" rows="4" placeholder="Ask about availability, pickup, condition, etc." required></textarea>
-                <button type="submit" class="button" style="margin-top: 10px; width: 100%;">Send Message</button>
+                <textarea
+                    name="content"
+                    class="form-control"
+                    rows="4"
+                    placeholder="Ask about availability, pickup, condition, or anything else..."
+                    required
+                ></textarea>
+
+                <button type="submit" class="button" style="margin-top: 12px; width: 100%;">
+                    Send Message
+                </button>
             </form>
         {% else %}
             <p class="muted">This is your listing.</p>
@@ -73,19 +135,27 @@
 <div class="card">
     <h3>Photos</h3>
 
-    {% for img in images %}
-        <img src="{{ img.image.url }}" alt="Listing photo" style="max-width: 300px; margin-right: 10px; margin-bottom: 10px;">
-    {% empty %}
-        <p>No photos uploaded for this tool.</p>
-    {% endfor %}
-</div>
-
-<div class="card">
-    <a href="{% url 'home' %}">Back to All Listings</a>
-
-    {% if user.is_authenticated and user == listing.user %}
-        |
-        <a href="{% url 'edit_listing' listing.listing_id %}">Edit This Listing</a>
+    {% if images %}
+        <div style="display: flex; flex-wrap: wrap; gap: 12px;">
+            {% for img in images %}
+                <img
+                    src="{{ img.image.url }}"
+                    alt="Listing photo"
+                    style="width: 220px; max-width: 100%; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 2px 8px rgba(0,0,0,0.08);"
+                >
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="muted">No photos uploaded for this tool.</p>
     {% endif %}
 </div>
+
+<div class="card" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+    <a href="{% url 'home' %}" class="button button-secondary">Back to All Listings</a>
+
+    {% if user.is_authenticated and user == listing.user %}
+        <a href="{% url 'edit_listing' listing.listing_id %}" class="button">Edit This Listing</a>
+    {% endif %}
+</div>
+
 {% endblock %}

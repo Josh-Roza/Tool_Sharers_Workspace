@@ -1,20 +1,104 @@
 {% extends 'template.html' %}
 
 {% block content %}
-<div class="card">
-    <h2>{% if edit_mode %}Edit Listing{% else %}Create New Listing{% endif %}</h2>
 
+<div class="card">
+    <div class="section-title">
+        <div>
+            <h2>
+                {% if edit_mode %}
+                    Edit Listing
+                {% else %}
+                    Create New Listing
+                {% endif %}
+            </h2>
+            <p class="muted">
+                {% if edit_mode %}
+                    Update your listing details.
+                {% else %}
+                    Share a tool for others to borrow.
+                {% endif %}
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        {{ form.as_p }}
 
-        <button type="submit">
-            {% if edit_mode %}Save Changes{% else %}Post Listing{% endif %}
-        </button>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+
+            <div>
+                <label style="font-weight: bold;">Title</label>
+                {{ form.title }}
+                {% for error in form.title.errors %}
+                    <div style="color: #dc2626; font-size: 0.85rem;">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div>
+                <label style="font-weight: bold;">Description</label>
+                {{ form.description }}
+                {% for error in form.description.errors %}
+                    <div style="color: #dc2626; font-size: 0.85rem;">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div>
+                <label style="font-weight: bold;">Price per Day</label>
+                {{ form.price }}
+                {% for error in form.price.errors %}
+                    <div style="color: #dc2626; font-size: 0.85rem;">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div>
+                <label style="font-weight: bold;">Location</label>
+                {{ form.location }}
+                {% for error in form.location.errors %}
+                    <div style="color: #dc2626; font-size: 0.85rem;">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 200px;">
+                    <label style="font-weight: bold;">Category</label>
+                    {{ form.category }}
+                    {% for error in form.category.errors %}
+                        <div style="color: #dc2626; font-size: 0.85rem;">{{ error }}</div>
+                    {% endfor %}
+                </div>
+
+                <div style="flex: 1; min-width: 200px;">
+                    <label style="font-weight: bold;">Condition</label>
+                    {{ form.condition }}
+                    {% for error in form.condition.errors %}
+                        <div style="color: #dc2626; font-size: 0.85rem;">{{ error }}</div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div>
+                <label style="font-weight: bold;">Upload Photo</label>
+                {{ form.listing_image }}
+                {% for error in form.listing_image.errors %}
+                    <div style="color: #dc2626; font-size: 0.85rem;">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+                <button type="submit" class="button button-success">
+                    {% if edit_mode %}Save Changes{% else %}Post Listing{% endif %}
+                </button>
+
+                <a href="{% url 'home' %}" class="button button-secondary">
+                    Cancel
+                </a>
+            </div>
+
+        </div>
     </form>
-
-    <hr>
-
-    <p><a href="{% url 'home' %}">Cancel and return to listings</a></p>
 </div>
+
 {% endblock %}

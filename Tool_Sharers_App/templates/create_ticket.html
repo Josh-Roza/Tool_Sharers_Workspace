@@ -1,7 +1,49 @@
-<h2>Create Support Ticket</h2>
+{% extends 'template.html' %}
 
-<form method="POST">
-  {% csrf_token %}
-  {{ form.as_p }}
-  <button type="submit">Submit Ticket</button>
-</form>
+{% block content %}
+
+<div class="card">
+    <div class="section-title">
+        <div>
+            <h2>Create Support Ticket</h2>
+            <p class="muted">Describe your issue and our team will help resolve it.</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <form method="POST">
+        {% csrf_token %}
+
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+
+            <div>
+                <label style="font-weight: bold;">Subject</label>
+                {{ form.subject }}
+            </div>
+
+            <div>
+                <label style="font-weight: bold;">Category</label>
+                {{ form.category }}
+            </div>
+
+            <div>
+                <label style="font-weight: bold;">Description</label>
+                {{ form.description }}
+            </div>
+
+            <button type="submit" class="button button-success" style="margin-top: 10px;">
+                Submit Ticket
+            </button>
+
+        </div>
+    </form>
+</div>
+
+<div class="card">
+    <a href="{% url 'ticket_list' %}" class="button button-secondary">
+        Back to Support Tickets
+    </a>
+</div>
+
+{% endblock %}

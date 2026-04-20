@@ -1,17 +1,53 @@
 {% extends 'template.html' %}
 
 {% block content %}
-<div class="card">
-    <h2>Edit Review</h2>
 
+<div class="card">
+    <div class="section-title">
+        <div>
+            <h2>Edit Review</h2>
+            <p class="muted">Update your review based on your experience.</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Save Changes</button>
+
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+
+            <!-- Rating -->
+            <div>
+                <label style="font-weight: bold;">{{ form.rating.label }}</label>
+                <div class="muted" style="font-size: 0.9rem;">Rate from 0 to 5</div>
+                {{ form.rating }}
+                {% for error in form.rating.errors %}
+                    <div style="color: #dc2626; font-size: 0.85rem;">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <!-- Comment -->
+            <div>
+                <label style="font-weight: bold;">{{ form.comment.label }}</label>
+                {{ form.comment }}
+                {% for error in form.comment.errors %}
+                    <div style="color: #dc2626; font-size: 0.85rem;">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="button button-success" style="margin-top: 10px;">
+                Save Changes
+            </button>
+
+        </div>
     </form>
-
-    <hr>
-
-    <p><a href="{% url 'view_profile' review.seller.user_id %}">Cancel</a></p>
 </div>
+
+<div class="card">
+    <a href="{% url 'view_profile' review.lender.user_id %}" class="button button-secondary">
+        Cancel
+    </a>
+</div>
+
 {% endblock %}

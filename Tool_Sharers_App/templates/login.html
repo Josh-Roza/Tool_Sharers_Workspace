@@ -1,17 +1,45 @@
 {% extends 'template.html' %}
 
 {% block content %}
-<div class="card">
-    <h2>Login</h2>
 
+<div class="card">
+    <div class="section-title">
+        <div>
+            <h2>Login</h2>
+            <p class="muted">Access your account to manage listings, bookings, and messages.</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Login</button>
+
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+
+            <div>
+                <label style="font-weight: bold;">Username</label>
+                {{ form.username }}
+            </div>
+
+            <div>
+                <label style="font-weight: bold;">Password</label>
+                {{ form.password }}
+            </div>
+
+            <button type="submit" class="button button-success" style="margin-top: 10px;">
+                Login
+            </button>
+
+        </div>
     </form>
-
-    <hr>
-
-    <p>Don't have an account? <a href="{% url 'add_user' %}">Create one here</a>.</p>
 </div>
+
+<div class="card">
+    <p>
+        Don't have an account?
+        <a href="{% url 'add_user' %}">Create one here</a>.
+    </p>
+</div>
+
 {% endblock %}

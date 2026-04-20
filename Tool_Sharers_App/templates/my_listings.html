@@ -2,42 +2,60 @@
 
 {% block content %}
 <div class="card">
-    <h2>My Listings</h2>
+    <div class="section-title">
+        <div>
+            <h2>My Listings</h2>
+            <p class="muted">Manage the tools you’ve posted for others to borrow.</p>
+        </div>
+        <a class="button button-success" href="{% url 'create_listing' %}">+ Post a New Listing</a>
+    </div>
+</div>
 
+<div class="card">
     {% if listings %}
-        <ul>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
             {% for listing in listings %}
-                <li class="listing-item">
-                    <strong>
-                        <a href="{% url 'view_listing' listing.listing_id %}">
-                            {{ listing.title }}
-                        </a>
-                    </strong>
+                <div class="card" style="padding: 18px; margin-bottom: 0;">
+                    <div class="section-title">
+                        <div>
+                            <a href="{% url 'view_listing' listing.listing_id %}" style="font-size: 1.1rem; font-weight: bold;">
+                                {{ listing.title }}
+                            </a>
+                        </div>
 
-                    <p class="muted" style="margin: 6px 0 10px 0;">
-                        Status: <strong>{{ listing.current_state }}</strong>
-                    </p>
+                        <div>
+                            {% if listing.current_state == "Available" %}
+                                <span class="badge badge-success">Available</span>
+                            {% elif listing.current_state == "Pending Requests" %}
+                                <span class="badge badge-warning">Pending Requests</span>
+                            {% elif listing.current_state == "Reserved" %}
+                                <span class="badge badge-info">Reserved</span>
+                            {% elif listing.current_state == "Borrowed" %}
+                                <span class="badge badge-danger">Borrowed</span>
+                            {% else %}
+                                <span class="badge">{{ listing.current_state }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
 
-                    <div style="margin-top: 8px;">
-                        <a class="button" href="{% url 'edit_listing' listing.listing_id %}">Edit</a>
+                    <div style="margin-top: 12px; display: flex; gap: 8px; flex-wrap: wrap;">
+                        <a class="button" href="{% url 'view_listing' listing.listing_id %}">View</a>
+                        <a class="button button-secondary" href="{% url 'edit_listing' listing.listing_id %}">Edit</a>
 
                         <form action="{% url 'delete_listing' listing.listing_id %}" method="post" style="display:inline;">
                             {% csrf_token %}
-                            <button type="submit" class="button-danger" onclick="return confirm('Really delete?')">
+                            <button type="submit" class="button button-danger" onclick="return confirm('Really delete this listing?')">
                                 Delete
                             </button>
                         </form>
                     </div>
-                </li>
+                </div>
             {% endfor %}
-            <div style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px;">
-                <a class="button" href="{% url 'create_listing' %}" style="background-color: #28a745;">+ Post a New Listing</a>
-            </div>
-        </ul>
+        </div>
     {% else %}
-        <p>You haven't posted anything yet.</p>
-        <div style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px;">
-            <a class="button" href="{% url 'create_listing' %}" style="background-color: #28a745;">+ Post a New Listing</a>
+        <div class="empty-state">
+            <p>You haven’t posted any tools yet.</p>
+            <a class="button button-success" href="{% url 'create_listing' %}">Post Your First Listing</a>
         </div>
     {% endif %}
 </div>

@@ -1,14 +1,22 @@
 {% extends 'template.html' %}
 
 {% block content %}
-<div class="card">
-    <h2>Write a Review</h2>
 
-    <!-- Errors -->
+<div class="card">
+    <div class="section-title">
+        <div>
+            <h2>Write a Review</h2>
+            <p class="muted">Share your experience with this user to help others.</p>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+
     {% if form.non_field_errors %}
-        <div style="color: red;">
+        <div class="card" style="background-color: #fef2f2; border: 1px solid #fecaca; padding: 14px; margin-bottom: 15px;">
             {% for error in form.non_field_errors %}
-                <p>{{ error }}</p>
+                <p style="color: #991b1b; margin: 0;">{{ error }}</p>
             {% endfor %}
         </div>
     {% endif %}
@@ -16,35 +24,46 @@
     <form method="POST">
         {% csrf_token %}
 
-        <!-- Listing -->
-        <p>
-            <strong>{{ form.listing.label }}</strong><br>
-            {{ form.listing }}
-            {% for error in form.listing.errors %}
-                <span style="color: red;">{{ error }}</span>
-            {% endfor %}
-        </p>
+        <div style="display: flex; flex-direction: column; gap: 14px;">
 
-        <!-- Rating -->
-        <p>
-            <strong>{{ form.rating.label }}</strong><br>
-            <span class="muted">Please give a rating out of 5</span><br>
-            {{ form.rating }}
-            {% for error in form.rating.errors %}
-                <span style="color: red;">{{ error }}</span>
-            {% endfor %}
-        </p>
+            <!-- Listing -->
+            <div>
+                <label style="font-weight: bold;">{{ form.listing.label }}</label>
+                {{ form.listing }}
+                {% for error in form.listing.errors %}
+                    <div style="color: #dc2626; font-size: 0.85rem;">{{ error }}</div>
+                {% endfor %}
+            </div>
 
-        <!-- Comment -->
-        <p>
-            <strong>{{ form.comment.label }}</strong><br>
-            {{ form.comment }}
-            {% for error in form.comment.errors %}
-                <span style="color: red;">{{ error }}</span>
-            {% endfor %}
-        </p>
+            <!-- Rating -->
+            <div>
+                <label style="font-weight: bold;">{{ form.rating.label }}</label>
+                <div class="muted" style="font-size: 0.9rem;">Rate from 0 to 5</div>
+                {{ form.rating }}
+                {% for error in form.rating.errors %}
+                    <div style="color: #dc2626; font-size: 0.85rem;">{{ error }}</div>
+                {% endfor %}
+            </div>
 
-        <button type="submit">Submit Review</button>
+            <!-- Comment -->
+            <div>
+                <label style="font-weight: bold;">{{ form.comment.label }}</label>
+                {{ form.comment }}
+                {% for error in form.comment.errors %}
+                    <div style="color: #dc2626; font-size: 0.85rem;">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="button button-success" style="margin-top: 10px;">
+                Submit Review
+            </button>
+
+        </div>
     </form>
 </div>
+
+<div class="card">
+    <a href="{% url 'home' %}" class="button button-secondary">Back to Listings</a>
+</div>
+
 {% endblock %}

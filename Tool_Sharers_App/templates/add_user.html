@@ -1,27 +1,72 @@
 {% extends 'template.html' %}
 
 {% block content %}
+
+<div class="card">
+    <div class="section-title">
+        <div>
+            <h2>Create Account</h2>
+            <p class="muted">
+                Join Tool Sharer to list tools, borrow gear, and connect with other users.
+            </p>
+        </div>
+    </div>
+</div>
+
 <div class="card">
     {% if success %}
-        <p>Account created{% if added_user %} for {{ added_user.username }}{% endif %}.</p>
-        <hr>
+        <div class="card" style="background-color: #ecfdf5; border: 1px solid #bbf7d0; padding: 14px; margin-bottom: 15px;">
+            <strong style="color: #166534;">
+                Account created{% if added_user %} for {{ added_user.username }}{% endif %} ✓
+            </strong>
+        </div>
     {% endif %}
-
-    <h2>Create Account</h2>
-
-    <p class="muted">
-        By creating an account, you acknowledge that the platform is not responsible
-        for damages, loss, or misuse of tools.
-    </p>
 
     <form method="post">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Create Account</button>
+
+        <div style="display: flex; flex-direction: column; gap: 14px;">
+
+            <div>
+                <label style="font-weight: bold;">Username</label>
+                {{ form.username }}
+            </div>
+
+            <div>
+                <label style="font-weight: bold;">Email</label>
+                {{ form.email }}
+            </div>
+
+            <div>
+                <label style="font-weight: bold;">Password</label>
+                {{ form.password }}
+            </div>
+
+            <div>
+                <label style="font-weight: bold;">Phone Number</label>
+                {{ form.phone_number }}
+            </div>
+
+            <div style="display: flex; align-items: center; gap: 8px; margin-top: 5px;">
+                {{ form.accept_waiver }}
+                <label style="font-size: 0.9rem;">
+                    I agree to the liability waiver
+                </label>
+            </div>
+
+            <button type="submit" class="button button-success" style="margin-top: 10px;">
+                Create Account
+            </button>
+
+        </div>
     </form>
-
-    <hr>
-
-    <p>Already have an account? <a href="{% url 'login' %}">Login</a></p>
 </div>
+
+<div class="card">
+    <p>
+        Already have an account?
+        <a href="{% url 'login' %}">Login</a>
+    </p>
+</div>
+
 {% endblock %}
