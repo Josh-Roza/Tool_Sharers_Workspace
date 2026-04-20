@@ -1,6 +1,6 @@
 from django import forms
 from django.core.validators import MinValueValidator, MaxValueValidator
-from .models import Listing, Report, Review, User, Image
+from .models import Listing, Report, Review, User, Image, Message
 
 class User_Form(forms.ModelForm):
     accept_waiver = forms.BooleanField(
@@ -81,3 +81,15 @@ class Image_Form(forms.ModelForm):
     class Meta:
         model = Image
         fields = ['image']
+
+class Message_Form(forms.ModelForm):
+    class Meta:
+        model = Message
+        fields = ['content']
+        widgets = {
+            'content': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Write your message...',
+                'rows': 4,
+            }),
+        }

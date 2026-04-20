@@ -194,3 +194,14 @@ class Review(models.Model):
 
     def __str__(self):
         return f"{self.rating}/5 Review by {self.borrower.username}"
+
+class Message(models.Model):
+    listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='messages')
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+    recipient = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Message from {self.sender} to {self.recipient} about {self.listing.title}"
