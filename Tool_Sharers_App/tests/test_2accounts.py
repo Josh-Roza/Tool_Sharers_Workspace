@@ -4,6 +4,19 @@ from selenium.webdriver.common.by import By
 from Tool_Sharers_App.models import User, Listing, Category
 import time
 
+
+
+
+"""
+in order to test an individual file " python manage.py test Tool_Sharers_App.tests.[filename] " ie. python manage.py test Tool_Sharers_App.tests.test_2accounts 
+in order to test all the tests " python manage.py test "
+
+"""
+
+
+
+
+
 class TwoBrowserTransactionTest(StaticLiveServerTestCase):
 
     
@@ -24,8 +37,8 @@ class TwoBrowserTransactionTest(StaticLiveServerTestCase):
             # ... (Create your listing and category here) ...
 
             # 2. Spin up TWO completely isolated browsers
-            self.borrower_browser = webdriver.Chrome() 
-            self.lender_browser = webdriver.Chrome()   
+            self.borrower_browser = webdriver.Firefox() 
+            self.lender_browser = webdriver.Firefox()   
 
 
             
@@ -35,7 +48,7 @@ class TwoBrowserTransactionTest(StaticLiveServerTestCase):
 
     def tearDown(self):
         # Close both when the test finishes
-        time.sleep(1000)
+        time.sleep(20) # This is a horrible way to stall, just here so you can verify that there are two seperate accounts logged in
         self.borrower_browser.quit()
         self.lender_browser.quit()
 
