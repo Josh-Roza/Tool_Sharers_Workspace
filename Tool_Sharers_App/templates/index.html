@@ -25,6 +25,30 @@
             >
 
             <div style="display: flex; gap: 10px;">
+                <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    name="min_price"
+                    placeholder="Min price/day"
+                    value="{{ selected_min_price }}"
+                    class="form-control"
+                    style="flex: 1;"
+                >
+
+                <input
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    name="max_price"
+                    placeholder="Max price/day"
+                    value="{{ selected_max_price }}"
+                    class="form-control"
+                    style="flex: 1;"
+                >
+            </div>
+
+            <div style="display: flex; gap: 10px;">
                 <select name="category" class="form-control" style="flex: 1;">
                     <option value="">All Categories</option>
                     {% for category in categories %}
@@ -43,6 +67,27 @@
                             {{ label }}
                         </option>
                     {% endfor %}
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <select name="max_distance" class="form-control" style="flex: 1;">
+                    <option value="">Any Distance</option>
+                    {% for distance in distance_choices %}
+                        <option value="{{ distance }}"
+                            {% if selected_max_distance == distance %}selected{% endif %}>
+                            Within {{ distance }} miles
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <select name="sort" class="form-control" style="flex: 1;">
+                    <option value="">Newest First</option>
+                    <option value="nearest" {% if selected_sort == 'nearest' %}selected{% endif %}>Nearest First</option>
+                    <option value="price_low" {% if selected_sort == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                    <option value="price_high" {% if selected_sort == 'price_high' %}selected{% endif %}>Price: High to Low</option>
                 </select>
             </div>
 

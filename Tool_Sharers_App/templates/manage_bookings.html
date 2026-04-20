@@ -23,7 +23,11 @@
                 {% for booking in incoming_requests %}
                 <tr style="border-bottom: 1px solid #eee;">
                     <td><strong>{{ booking.listing.title }}</strong></td>
-                    <td>{{ booking.borrower.username }}</td>
+                    <td>
+                        <a href="{% url 'view_profile' booking.borrower.user_id %}?listing_id={{ booking.listing.listing_id }}">
+                            {{ booking.borrower.username }}
+                        </a>
+                    </td>
                     <td>{{ booking.start_date }} to {{ booking.end_date }}</td>
                     <td><span class="badge">{{ booking.get_status_display }}</span></td>
                     <td>
@@ -82,7 +86,14 @@
                     <h3>{{ booking.listing.title }}</h3>
                     <strong>Status: {{ booking.get_status_display }}</strong>
                 </div>
-                <p>Owner: <strong>{{ booking.listing.user.username }}</strong></p>
+                <p>
+                    Owner:
+                    <strong>
+                        <a href="{% url 'view_profile' booking.listing.user.user_id %}?listing_id={{ booking.listing.listing_id }}">
+                            {{ booking.listing.user.username }}
+                        </a>
+                    </strong>
+                </p>
                 <p>Dates: {{ booking.start_date }} to {{ booking.end_date }}</p>
                 <p>Total Cost: ${{ booking.total_cost }}</p>
 

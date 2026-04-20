@@ -56,6 +56,7 @@ urlpatterns = [
     path("inbox/", views.inbox, name="inbox"),
     path("listing/<int:listing_id>/message/", views.send_message, name="send_message"),
     path("messages/<int:listing_id>/<int:user_id>/", views.conversation, name="conversation"),
+    path("profile/<int:user_id>/message/<int:listing_id>/", views.start_profile_message, name="start_profile_message"),
 
     path("support/", views.ticket_list, name="ticket_list"),
     path("support/new/", views.create_ticket, name="create_ticket"),

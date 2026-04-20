@@ -27,6 +27,10 @@ def homePage(request):
     category_id = request.GET.get('category', '').strip()
     condition = request.GET.get('condition', '').strip()
     location_query = request.GET.get('location', '').strip()
+    min_price = request.GET.get('min_price', '').strip()
+    max_price = request.GET.get('max_price', '').strip()
+    max_distance = request.GET.get('max_distance', '').strip()
+    sort_by = request.GET.get('sort', '').strip()
 
     if query:
         listings = listings.filter(
@@ -41,22 +45,56 @@ def homePage(request):
     if condition:
         listings = listings.filter(condition=condition)
 
+    if min_price:
+        try:
+            listings = listings.filter(price__gte=min_price)
+        except ValueError:
+            pass
+
+    if max_price:
+        try:
+            listings = listings.filter(price__lte=max_price)
+        except ValueError:
+            pass
+
+    listings_list = list(listings)
+
     origin_coords = geocode_address(location_query) if location_query else None
-    if origin_coords is not None:
-        listings_list = list(listings)
-        for listing in listings_list:
+    max_distance_value = None
+
+    if max_distance:
+        try:
+            max_distance_value = float(max_distance)
+        except ValueError:
+            max_distance_value = None
+
+    for listing in listings_list:
+        listing.distance_display = None
+        listing.distance_miles = None
+
+        if origin_coords is not None:
             listing_coords = geocode_address(listing.location) if listing.location else None
-            if listing_coords is None:
-                listing.distance_display = None
-                listing.distance_miles = None
-                continue
+            if listing_coords is not None:
+                miles = haversine_miles(origin_coords, listing_coords)
+                listing.distance_miles = miles
+                listing.distance_display = f"{miles:.1f} mi"
 
-            miles = haversine_miles(origin_coords, listing_coords)
-            listing.distance_miles = miles
-            listing.distance_display = f"{miles:.1f} mi"
+    if origin_coords is not None and max_distance_value is not None:
+        listings_list = [
+            listing for listing in listings_list
+            if listing.distance_miles is not None and listing.distance_miles <= max_distance_value
+        ]
 
+    if sort_by == 'nearest' and origin_coords is not None:
         listings_list.sort(key=lambda l: (l.distance_miles is None, l.distance_miles or 0.0))
-        listings = listings_list
+    elif sort_by == 'price_low':
+        listings_list.sort(key=lambda l: l.price)
+    elif sort_by == 'price_high':
+        listings_list.sort(key=lambda l: l.price, reverse=True)
+    else:
+        listings_list.sort(key=lambda l: l.listing_id, reverse=True)
+
+    listings = listings_list
 
     form = Listing_Form()
 
@@ -68,7 +106,12 @@ def homePage(request):
         'selected_location': location_query,
         'selected_category': category_id,
         'selected_condition': condition,
+        'selected_min_price': min_price,
+        'selected_max_price': max_price,
+        'selected_max_distance': max_distance,
+        'selected_sort': sort_by,
         'condition_choices': Listing.Condition.choices,
+        'distance_choices': ["5", "10", "25", "50", "100"],
     })
 
 def add_user(request):
@@ -282,10 +325,40 @@ def view_profile(request, user_id):
     profile_user = get_object_or_404(UserModel, pk=user_id)
     reviews = Review.objects.filter(lender=profile_user)
 
+    listing_id = request.GET.get('listing_id')
+    context_listing = None
+
+    if listing_id:
+        context_listing = Listing.objects.filter(pk=listing_id).first()
+
     return render(request, 'view_profile.html', {
         'profile_user': profile_user,
-        'reviews': reviews
+        'reviews': reviews,
+        'context_listing': context_listing,
     })
+
+@login_required
+def start_profile_message(request, user_id, listing_id):
+    other_user = get_object_or_404(User, pk=user_id)
+    listing = get_object_or_404(Listing, pk=listing_id)
+
+    if request.user == other_user:
+        return redirect('view_profile', user_id=other_user.user_id)
+
+    # Only allow messaging if the listing is relevant to either the viewer or the profile user
+    if listing.user != request.user and listing.user != other_user:
+        booking_exists = Booking.objects.filter(
+            listing=listing
+        ).filter(
+            Q(borrower=request.user, listing__user=other_user) |
+            Q(borrower=other_user, listing__user=request.user)
+        ).exists()
+
+        if not booking_exists:
+            return redirect('view_profile', user_id=other_user.user_id)
+
+    return redirect('conversation', listing_id=listing.listing_id, user_id=other_user.user_id)
+
 @login_required
 def request_booking(request, listing_id):
     listing = get_object_or_404(Listing, pk=listing_id)
