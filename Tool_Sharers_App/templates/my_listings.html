@@ -26,9 +26,15 @@
                     </div>
                 </li>
             {% endfor %}
+            <div style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px;">
+                <a class="button" href="{% url 'create_listing' %}" style="background-color: #28a745;">+ Post a New Listing</a>
+            </div>
         </ul>
     {% else %}
         <p>You haven't posted anything yet.</p>
+        <div style="margin-top: 30px; border-top: 2px solid #eee; padding-top: 20px;">
+            <a class="button" href="{% url 'create_listing' %}" style="background-color: #28a745;">+ Post a New Listing</a>
+        </div>
     {% endif %}
 </div>
 {% endblock %}
