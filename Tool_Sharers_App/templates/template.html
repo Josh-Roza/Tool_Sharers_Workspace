@@ -46,7 +46,7 @@
         .brand {
             font-size: 1.15rem;
             font-weight: bold;
-            color: white;
+            color: rgb(255, 242, 141);
             text-decoration: none;
             margin-right: 12px;
         }
@@ -295,7 +295,7 @@
         <div class="nav-inner">
             <div class="nav-left">
                 <a href="{% url 'home' %}" class="brand">Tool Sharer</a>
-                <a href="{% url 'home' %}">All Listings</a>
+                <!-- <a href="{% url 'home' %}">All Listings</a> -->
 
                 {% if user.is_authenticated %}
                     <a href="{% url 'my_listings' %}">My Listings</a>
