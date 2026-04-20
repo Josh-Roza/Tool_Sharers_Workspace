@@ -3,8 +3,8 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
-from .models import User, Listing, Review, Report, Image, Transaction, Category, Booking
-from .forms import User_Form, Listing_Form, Image_Form, Review_Form, Report_Form, Edit_Profile_Form
+from .models import User, Listing, Review, Report, Image, Transaction, Category, Booking, Message
+from .forms import User_Form, Listing_Form, Image_Form, Review_Form, Report_Form, Edit_Profile_Form, Message_Form
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.core.exceptions import ValidationError
@@ -377,3 +377,89 @@ def confirm_payment(request, booking_id):
         transaction.save()
         
     return redirect('manage_bookings')
+
+@login_required
+def inbox(request):
+    messages = Message.objects.filter(
+        Q(sender=request.user) | Q(recipient=request.user)
+    ).select_related('listing', 'sender', 'recipient').order_by('-timestamp')
+
+    conversations = []
+    seen = set()
+
+    for message in messages:
+        other_user = message.recipient if message.sender == request.user else message.sender
+        key = (message.listing.listing_id, other_user.user_id)
+
+        if key not in seen:
+            seen.add(key)
+            conversations.append({
+                'listing': message.listing,
+                'other_user': other_user,
+                'last_message': message,
+            })
+
+    return render(request, 'inbox.html', {
+        'conversations': conversations
+    })
+
+
+@login_required
+def conversation(request, listing_id, user_id):
+    listing = get_object_or_404(Listing, pk=listing_id)
+    other_user = get_object_or_404(User, pk=user_id)
+
+    messages = Message.objects.filter(
+        listing=listing
+    ).filter(
+        Q(sender=request.user, recipient=other_user) |
+        Q(sender=other_user, recipient=request.user)
+    ).order_by('timestamp')
+
+    if request.user != listing.user and not messages.exists():
+        return redirect('inbox')
+
+    Message.objects.filter(
+        listing=listing,
+        sender=other_user,
+        recipient=request.user,
+        is_read=False
+    ).update(is_read=True)
+
+    if request.method == 'POST':
+        form = Message_Form(request.POST)
+        if form.is_valid():
+            new_message = form.save(commit=False)
+            new_message.listing = listing
+            new_message.sender = request.user
+            new_message.recipient = other_user
+            new_message.save()
+            return redirect('conversation', listing_id=listing.listing_id, user_id=other_user.user_id)
+    else:
+        form = Message_Form()
+
+    return render(request, 'conversation.html', {
+        'listing': listing,
+        'other_user': other_user,
+        'messages': messages,
+        'form': form,
+    })
+
+@login_required
+def send_message(request, listing_id):
+    listing = get_object_or_404(Listing, pk=listing_id)
+
+    if request.user == listing.user:
+        return redirect('view_listing', listing_id=listing.listing_id)
+
+    if request.method == 'POST':
+        form = Message_Form(request.POST)
+        if form.is_valid():
+            message = form.save(commit=False)
+            message.listing = listing
+            message.sender = request.user
+            message.recipient = listing.user
+            message.save()
+            return redirect('conversation', listing_id=listing.listing_id, user_id=listing.user.user_id)
+
+    return redirect('view_listing', listing_id=listing.listing_id)

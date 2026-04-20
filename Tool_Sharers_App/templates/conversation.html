@@ -1,0 +1,39 @@
+{% extends 'template.html' %}
+
+{% block content %}
+<div class="card">
+    <h2>Conversation about "{{ listing.title }}"</h2>
+    <p class="muted">
+        Between you and <a href="{% url 'view_profile' other_user.user_id %}">{{ other_user.username }}</a>
+    </p>
+</div>
+
+<div class="card">
+    {% if messages %}
+        {% for message in messages %}
+            <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #eee;">
+                <strong>
+                    {% if message.sender == user %}
+                        You
+                    {% else %}
+                        {{ message.sender.username }}
+                    {% endif %}
+                </strong>
+                <span class="muted" style="font-size: 0.85em;"> — {{ message.timestamp }}</span>
+                <p style="margin-top: 6px;">{{ message.content }}</p>
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>No messages yet.</p>
+    {% endif %}
+</div>
+
+<div class="card">
+    <h3>Reply</h3>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="button">Send Reply</button>
+    </form>
+</div>
+{% endblock %}

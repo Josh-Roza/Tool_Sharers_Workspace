@@ -54,6 +54,23 @@
 </div>
 
 <div class="card">
+    <h3>Message the Owner</h3>
+    {% if user.is_authenticated %}
+        {% if user != listing.user %}
+            <form action="{% url 'send_message' listing.listing_id %}" method="post">
+                {% csrf_token %}
+                <textarea name="content" class="form-control" rows="4" placeholder="Ask about availability, pickup, condition, etc." required></textarea>
+                <button type="submit" class="button" style="margin-top: 10px; width: 100%;">Send Message</button>
+            </form>
+        {% else %}
+            <p class="muted">This is your listing.</p>
+        {% endif %}
+    {% else %}
+        <p><a href="{% url 'login' %}">Log in</a> to message the owner.</p>
+    {% endif %}
+</div>
+
+<div class="card">
     <h3>Photos</h3>
 
     {% for img in images %}

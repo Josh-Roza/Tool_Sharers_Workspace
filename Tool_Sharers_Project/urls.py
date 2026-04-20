@@ -52,6 +52,8 @@ urlpatterns = [
     path("booking/<int:booking_id>/confirm-payment/", views.confirm_payment, name="confirm_payment"),
     path("booking/<int:booking_id>/<str:action>/", views.action_booking, name="action_booking"),
 
-
+    path("inbox/", views.inbox, name="inbox"),
+    path("listing/<int:listing_id>/message/", views.send_message, name="send_message"),
+    path("messages/<int:listing_id>/<int:user_id>/", views.conversation, name="conversation"),
     
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

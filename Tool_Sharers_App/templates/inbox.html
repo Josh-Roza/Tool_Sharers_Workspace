@@ -1,0 +1,31 @@
+{% extends 'template.html' %}
+
+{% block content %}
+<div class="card">
+    <h2>Inbox</h2>
+
+    {% if conversations %}
+        <ul style="list-style: none; padding: 0;">
+            {% for convo in conversations %}
+                <li class="listing-item" style="padding: 15px 0; border-bottom: 1px solid #eee;">
+                    <strong>
+                        <a href="{% url 'conversation' convo.listing.listing_id convo.other_user.user_id %}">
+                            {{ convo.listing.title }}
+                        </a>
+                    </strong>
+                    <br>
+                    <span class="muted">
+                        With {{ convo.other_user.username }}
+                    </span>
+                    <br>
+                    <span class="muted" style="font-size: 0.9em;">
+                        Last message: {{ convo.last_message.content|truncatechars:80 }}
+                    </span>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No conversations yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
