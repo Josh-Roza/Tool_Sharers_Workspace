@@ -84,6 +84,17 @@ class Listing(models.Model):
     def __str__(self):
         return f"{self.title} - ({self.listing_id})"
 
+
+class GeocodedAddress(models.Model):
+    query = models.CharField(max_length=255, unique=True)
+    latitude = models.FloatField()
+    longitude = models.FloatField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.query
+
 class Booking(models.Model):
     class Status(models.TextChoices):
         PENDING = 'PE', 'Pending'

@@ -1,0 +1,22 @@
+from django.db import migrations, models
+
+
+class Migration(migrations.Migration):
+
+    dependencies = [
+        ("Tool_Sharers_App", "0004_seed_categories"),
+    ]
+
+    operations = [
+        migrations.CreateModel(
+            name="GeocodedAddress",
+            fields=[
+                ("id", models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name="ID")),
+                ("query", models.CharField(max_length=255, unique=True)),
+                ("latitude", models.FloatField()),
+                ("longitude", models.FloatField()),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+            ],
+        ),
+    ]

@@ -11,8 +11,16 @@
             <input
                 type="text"
                 name="q"
-                placeholder="Search by title, description, or location..."
+                placeholder="Search by title, description"
                 value="{{ selected_query }}"
+                class="form-control"
+            >
+
+            <input
+                type="text"
+                name="location"
+                placeholder="Enter address, city, or zip code"
+                value="{{ selected_location }}"
                 class="form-control"
             >
 
@@ -61,6 +69,9 @@
                         Posted by 
                         <a href="{% url 'view_profile' listing.user.user_id %}">{{ listing.user.username }}</a>
                         in {{ listing.location }}
+                        {% if listing.distance_display %}
+                            — {{ listing.distance_display }} away
+                        {% endif %}
                     </span>
                     <br>
                     <span class="muted" style="font-size: 0.85em;">

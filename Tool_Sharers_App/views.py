@@ -9,7 +9,8 @@ from django.contrib.auth import get_user_model
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 
-# test comment
+from .geocoding import geocode_address, haversine_miles
+
 
 def homePage(request):
     
@@ -19,14 +20,13 @@ def homePage(request):
         bookings__status__in=[Booking.Status.APPROVED, Booking.Status.ACTIVE],
         bookings__start_date__lte=today,
         bookings__end_date__gte=today).distinct().order_by('-listing_id')
-    
-    
+
     categories = Category.objects.all().order_by('name')
 
     query = request.GET.get('q', '').strip()
     category_id = request.GET.get('category', '').strip()
     condition = request.GET.get('condition', '').strip()
-    
+    location_query = request.GET.get('location', '').strip()
 
     if query:
         listings = listings.filter(
@@ -41,6 +41,23 @@ def homePage(request):
     if condition:
         listings = listings.filter(condition=condition)
 
+    origin_coords = geocode_address(location_query) if location_query else None
+    if origin_coords is not None:
+        listings_list = list(listings)
+        for listing in listings_list:
+            listing_coords = geocode_address(listing.location) if listing.location else None
+            if listing_coords is None:
+                listing.distance_display = None
+                listing.distance_miles = None
+                continue
+
+            miles = haversine_miles(origin_coords, listing_coords)
+            listing.distance_miles = miles
+            listing.distance_display = f"{miles:.1f} mi"
+
+        listings_list.sort(key=lambda l: (l.distance_miles is None, l.distance_miles or 0.0))
+        listings = listings_list
+
     form = Listing_Form()
 
     return render(request, 'index.html', {
@@ -48,6 +65,7 @@ def homePage(request):
         'form': form,
         'categories': categories,
         'selected_query': query,
+        'selected_location': location_query,
         'selected_category': category_id,
         'selected_condition': condition,
         'condition_choices': Listing.Condition.choices,
