@@ -26,10 +26,21 @@
 
         <div style="display: flex; flex-direction: column; gap: 14px;">
 
-            <!-- Listing -->
+            <!-- Listing (OPTIONAL NOW) -->
             <div>
-                <label style="font-weight: bold;">{{ form.listing.label }}</label>
+                <label style="font-weight: bold;">
+                    {{ form.listing.label }}
+                    <span class="muted" style="font-weight: normal; font-size: 0.85rem;">
+                        (optional)
+                    </span>
+                </label>
+
+                <div class="muted" style="font-size: 0.9rem;">
+                    Select a completed transaction or leave blank for a general review.
+                </div>
+
                 {{ form.listing }}
+
                 {% for error in form.listing.errors %}
                     <div style="color: #dc2626; font-size: 0.85rem;">{{ error }}</div>
                 {% endfor %}

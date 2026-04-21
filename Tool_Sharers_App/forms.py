@@ -63,8 +63,20 @@ class Review_Form(forms.ModelForm):
         model = Review
         fields = ['listing', 'rating', 'comment']
         widgets = {
-            'comment': forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Comment'}),
+            'comment': forms.Textarea(attrs={
+                'class': 'form-control',
+                'placeholder': 'Comment'
+            }),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        # Make listing optional
+        self.fields['listing'].required = False
+
+        # Add "no listing" option in dropdown
+        self.fields['listing'].empty_label = "No specific transaction"
 
 class Report_Form(forms.ModelForm):
     class Meta:

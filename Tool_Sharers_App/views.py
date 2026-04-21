@@ -199,20 +199,33 @@ def create_review(request):
 
     if request.method == "POST":
 
-        review_instance = Review(borrower=request.user, lender=lender_obj)
+        review_instance = Review(
+            borrower=request.user,
+            lender=lender_obj,
+            listing=None  # allow default unless user selects one
+        )
+
         form = Review_Form(request.POST, instance=review_instance)
-        
+
         if form.is_valid():
+
             if lender_obj == request.user:
                 form.add_error(None, "You cannot review yourself.")
-                return render(request, "create_review.html", {"form": form, "seller": lender_obj})
+                return render(request, "create_review.html", {
+                    "form": form,
+                    "seller": lender_obj
+                })
 
             form.save()
             return redirect('view_profile', user_id=lender_obj.user_id)
+
     else:
         form = Review_Form()
 
-    return render(request, "create_review.html", {"form": form, "seller": lender_obj})
+    return render(request, "create_review.html", {
+        "form": form,
+        "seller": lender_obj
+    })
 
 @login_required
 def create_report(request, user_id):
@@ -247,34 +260,39 @@ def delete_user(request):
 
 @login_required
 def delete_review(request, review_id):
-    # Get the review, or 404 if it doesn't exist
+    # Get the review or 404
     review = get_object_or_404(Review, review_id=review_id)
 
-    # Only allow the buyer who wrote the review to delete it
-    if review.buyer != request.user:
-        return redirect('view_profile', user_id=review.seller.user_id)
+    # Only allow the borrower (review author) to delete
+    if review.borrower != request.user:
+        return redirect('view_profile', user_id=review.lender.user_id)
 
-    # Delete the review
     if request.method == "POST":
-        seller_id = review.seller.user_id
+        lender_id = review.lender.user_id  # store before delete
         review.delete()
-        return redirect('view_profile', user_id=seller_id)
+        return redirect('view_profile', user_id=lender_id)
 
-    # Redirect back to the seller's profile
-    return redirect('view_profile', user_id=review.seller.user_id)
+    # fallback redirect
+    return redirect('view_profile', user_id=review.lender.user_id)
 
 @login_required
 def edit_review(request, review_id):
-    review = get_object_or_404(Review, review_id=review_id, buyer=request.user)
+    review = get_object_or_404(Review, review_id=review_id, borrower=request.user)
 
     if request.method == "POST":
         form = Review_Form(request.POST, instance=review)
+
         if form.is_valid():
             updated_review = form.save(commit=False)
-            updated_review.buyer = request.user
-            updated_review.seller = review.seller
+
+            # ensure ownership stays correct
+            updated_review.borrower = request.user
+            updated_review.lender = review.lender
+
             updated_review.save()
-            return redirect('view_profile', user_id=review.seller.user_id)
+
+            return redirect('view_profile', user_id=review.lender.user_id)
+
     else:
         form = Review_Form(instance=review)
 

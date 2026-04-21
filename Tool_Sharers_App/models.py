@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models import Q
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import User
 from datetime import timedelta
 from django.utils import timezone
 from django.conf import settings
@@ -199,13 +200,51 @@ class Image(models.Model):
 
 class Review(models.Model):
     review_id = models.AutoField(primary_key=True)
-    listing = models.ForeignKey(Listing, on_delete=models.CASCADE)
-    borrower = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviews_written")
-    lender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reviews_received")
+
+    # Now OPTIONAL
+    listing = models.ForeignKey(
+        'Listing',
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
+    )
+
+    borrower = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="reviews_written"
+    )
+
+    lender = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="reviews_received"
+    )
+
     rating = models.IntegerField()
     comment = models.TextField()
 
     def clean(self):
+        # Prevent self-reviews
+        if self.borrower == self.lender:
+            raise ValidationError("You cannot review yourself.")
+
+        # If NO listing → allow general review (with optional restriction)
+        if self.listing is None:
+            # Optional: prevent duplicate general reviews
+            existing = Review.objects.filter(
+                borrower=self.borrower,
+                lender=self.lender,
+                listing__isnull=True
+            ).exclude(pk=self.pk).exists()
+
+            if existing:
+                raise ValidationError(
+                    "You have already left a general review for this user."
+                )
+            return
+
+        # If listing EXISTS → enforce completed booking
         has_completed_booking = Booking.objects.filter(
             listing=self.listing,
             borrower=self.borrower,
@@ -213,14 +252,22 @@ class Review(models.Model):
         ).exists()
 
         if not has_completed_booking:
-            raise ValidationError("You cannot review a transaction that has not been completed")
+            raise ValidationError(
+                "You cannot review a transaction that has not been completed"
+            )
 
     def save(self, *args, **kwargs):
         self.full_clean()
         super().save(*args, **kwargs)
-    
+
+    @property
+    def is_verified(self):
+        return self.listing is not None
+
     def __str__(self):
-        return f"{self.rating}/5 Review by {self.borrower.username}"
+        if self.listing:
+            return f"{self.rating}/5 Review by {self.borrower.username} (Verified)"
+        return f"{self.rating}/5 Review by {self.borrower.username} (General)"
 
 class Message(models.Model):
     listing = models.ForeignKey(Listing, on_delete=models.CASCADE, related_name='messages')
