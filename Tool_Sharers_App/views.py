@@ -194,26 +194,25 @@ def my_listings(request):
 
 @login_required
 def create_review(request):
-    seller_id = request.GET.get('seller_id')
-    seller = get_object_or_404(User, user_id=seller_id) if seller_id else None
+    lender_id = request.GET.get('seller_id') 
+    lender_obj = get_object_or_404(User, user_id=lender_id) if lender_id else None
 
     if request.method == "POST":
-        form = Review_Form(request.POST)
+
+        review_instance = Review(borrower=request.user, lender=lender_obj)
+        form = Review_Form(request.POST, instance=review_instance)
+        
         if form.is_valid():
-            review = form.save(commit=False)
-            review.buyer = request.user
-            review.seller = seller
-
-            if review.seller == request.user:
+            if lender_obj == request.user:
                 form.add_error(None, "You cannot review yourself.")
-                return render(request, "create_review.html", {"form": form, "seller": seller})
+                return render(request, "create_review.html", {"form": form, "seller": lender_obj})
 
-            review.save()
-            return redirect('view_profile', user_id=review.seller.user_id)
+            form.save()
+            return redirect('view_profile', user_id=lender_obj.user_id)
     else:
         form = Review_Form()
 
-    return render(request, "create_review.html", {"form": form, "seller": seller})
+    return render(request, "create_review.html", {"form": form, "seller": lender_obj})
 
 @login_required
 def create_report(request, user_id):
