@@ -148,7 +148,7 @@ def create_listing(request):
             return redirect('home')
     else:
         form = Listing_Form()
-    return render(request, 'create_listing.html', {'form': Listing_Form()})
+    return render(request, 'create_listing.html', {'form': form})
 
 @login_required
 def edit_listing(request, listing_id):

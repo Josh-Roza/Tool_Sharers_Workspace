@@ -48,7 +48,7 @@ class TwoBrowserTransactionTest(StaticLiveServerTestCase):
 
     def tearDown(self):
         # Close both when the test finishes
-        time.sleep(20) # This is a horrible way to stall, just here so you can verify that there are two seperate accounts logged in
+        #time.sleep(20) # This is a horrible way to stall, just here so you can verify that there are two seperate accounts logged in
         self.borrower_browser.quit()
         self.lender_browser.quit()
 
