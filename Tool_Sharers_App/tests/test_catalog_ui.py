@@ -28,11 +28,11 @@ class CatalogSeleniumTests(StaticLiveServerTestCase):
     def login_user(self, username, password):
 
         self.browser.get(f"{self.live_server_url}{reverse('login')}")
-        time.sleep(1)
+        time.sleep(2)
         self.browser.find_element(By.NAME, "username").send_keys(username)
         self.browser.find_element(By.NAME, "password").send_keys(password)
         self.browser.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
-        time.sleep(1.5)
+        time.sleep(3)
 
     # --- 1. User can create an account ---
     def test_user_can_create_account(self):
@@ -83,11 +83,11 @@ class CatalogSeleniumTests(StaticLiveServerTestCase):
         self.browser.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
         
         import time
-        time.sleep(2) 
+        time.sleep(4) 
 
         self.browser.get(f"{self.live_server_url}{reverse('create_listing')}")
         
-        time.sleep(1)
+        time.sleep(2)
         
 
         self.browser.find_element(By.NAME, "title").send_keys("Hammer")
@@ -113,7 +113,7 @@ class CatalogSeleniumTests(StaticLiveServerTestCase):
     def test_user_can_edit_own_listing(self):
         self.login_user("owner1", "testpassword123")
         self.browser.get(f"{self.live_server_url}{reverse('edit_listing', args=[self.listing.listing_id])}")
-        time.sleep(1)
+        time.sleep(2)
         
         title_input = self.browser.find_element(By.NAME, "title")
         title_input.clear() # Clear the old "DeWalt Drill" text
@@ -128,17 +128,17 @@ class CatalogSeleniumTests(StaticLiveServerTestCase):
     def test_user_can_delete_own_listing(self):
         self.login_user("owner1", "testpassword123")
         self.browser.get(f"{self.live_server_url}{reverse('delete_listing', args=[self.listing.listing_id])}")
-        time.sleep(1)
+        time.sleep(2)
 
         self.browser.find_element(By.CSS_SELECTOR, "button[type='submit']").click()
-        time.sleep(2)
+        time.sleep(4)
         self.assertEqual(Listing.objects.count(), 0)
 
     # --- 7. User CANNOT edit or delete someone else's listing ---
     def test_user_cannot_edit_someone_elses_listing(self):
         self.login_user("borrower1", "testpassword123")
         self.browser.get(f"{self.live_server_url}{reverse('edit_listing', args=[self.listing.listing_id])}")
-        time.sleep(1)
+        time.sleep(2)
 
         self.assertNotIn("Updated DeWalt Drill", self.browser.page_source)
         
@@ -149,13 +149,13 @@ class CatalogSeleniumTests(StaticLiveServerTestCase):
     def test_search_listings_by_keyword(self):
    
         self.browser.get(f"{self.live_server_url}{reverse('home')}?q=DeWalt")
-        time.sleep(1)
+        time.sleep(2)
         self.assertIn("DeWalt Drill", self.browser.page_source)
 
     # --- 9. User can filter listings by Category ---
     def test_filter_listings_by_category(self):
         self.browser.get(f"{self.live_server_url}{reverse('home')}?category={self.category.id}")
-        time.sleep(1)
+        time.sleep(2)
         self.assertIn("DeWalt Drill", self.browser.page_source)
 
     #--- 10. Borrower can send a message to the owner ---
@@ -179,14 +179,14 @@ class CatalogSeleniumTests(StaticLiveServerTestCase):
     def test_user_can_submit_support_ticket(self):
         self.login_user("borrower1", "testpassword123")
         self.browser.get(f"{self.live_server_url}{reverse('create_ticket')}")
-        time.sleep(1)
+        time.sleep(2)
         
         self.browser.find_element(By.NAME, "subject").send_keys("Missing part")
         self.browser.find_element(By.NAME, "description").send_keys("Help!")
         Select(self.browser.find_element(By.NAME, "category")).select_by_value("dispute")
         
         self.browser.find_element(By.NAME, "subject").submit()
-        time.sleep(2)
+        time.sleep(4)
         self.assertEqual(SupportTicket.objects.count(), 1)
         
 # --- 12. User can submit a review ---
@@ -200,7 +200,7 @@ class CatalogSeleniumTests(StaticLiveServerTestCase):
         
         self.login_user("borrower1", "testpassword123")
         self.browser.get(f"{self.live_server_url}{reverse('create_review')}?seller_id={self.owner.user_id}")
-        time.sleep(1)
+        time.sleep(2)
 
     
         listing_dropdown = Select(self.browser.find_element(By.ID, "id_listing"))
@@ -209,7 +209,7 @@ class CatalogSeleniumTests(StaticLiveServerTestCase):
         self.browser.find_element(By.NAME, "rating").send_keys("5")
         self.browser.find_element(By.NAME, "comment").send_keys("Great tool!")
         self.browser.find_element(By.NAME, "comment").submit()
-        time.sleep(2)
+        time.sleep(4)
         
         self.assertEqual(Review.objects.count(), 1)
 
@@ -217,23 +217,23 @@ class CatalogSeleniumTests(StaticLiveServerTestCase):
     def test_user_can_submit_report(self):
         self.login_user("borrower1", "testpassword123")
         self.browser.get(f"{self.live_server_url}{reverse('create_report', args=[self.owner.user_id])}")
-        time.sleep(1)
+        time.sleep(2)
         
         self.browser.find_element(By.NAME, "reason").send_keys("Rude behavior")
         self.browser.find_element(By.NAME, "reason").submit()
-        time.sleep(2)
+        time.sleep(4)
         self.assertEqual(Report.objects.count(), 1)
 
     # --- 14. User cannot submit a review for an incomplete transaction ---
     def test_cannot_review_incomplete_transaction(self):
         self.login_user("borrower1", "testpassword123")
         self.browser.get(f"{self.live_server_url}{reverse('create_review')}?seller_id={self.owner.user_id}")
-        time.sleep(1)
+        time.sleep(2)
         
         self.browser.find_element(By.NAME, "rating").send_keys("1")
         self.browser.find_element(By.NAME, "comment").send_keys("Bad!")
         self.browser.find_element(By.NAME, "comment").submit()
-        time.sleep(2)
+        time.sleep(4)
         
        
         self.assertEqual(Review.objects.count(), 0)
