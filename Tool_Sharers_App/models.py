@@ -205,6 +205,20 @@ class Review(models.Model):
     rating = models.IntegerField()
     comment = models.TextField()
 
+    def clean(self):
+        has_completed_booking = Booking.objects.filter(
+            listing=self.listing,
+            borrower=self.borrower,
+            status=Booking.Status.RETURNED
+        ).exists()
+
+        if not has_completed_booking:
+            raise ValidationError("You cannot review a transaction that has not been completed")
+
+    def save(self, *args, **kwargs):
+        self.full_clean()
+        super().save(*args, **kwargs)
+    
     def __str__(self):
         return f"{self.rating}/5 Review by {self.borrower.username}"
 
